@@ -20,5 +20,6 @@ sourceCpp("src/SDP_beq_func.cpp")
 
 #Run SDP
 Cout <- SDP_beq_func(
-  pk=pk,
-  Mc=5)
+  Mc=5,
+  tmax=10,
+  pk=pk)

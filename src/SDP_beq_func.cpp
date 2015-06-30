@@ -8,9 +8,12 @@ using namespace Rcpp;
 // For more on using Rcpp click the Help button on the editor toolbar
 
 // [[Rcpp::export]]
-NumericMatrix SDP_beq_func(
+List SDP_beq_func(
+  double Mc,
+  int tmax,
   NumericMatrix pk,
-  double Mc
+  NumericVector gain,
+  NumericVector cost
 ) {
   
   
@@ -28,6 +31,13 @@ NumericMatrix SDP_beq_func(
   double thetamax_state = 500;
   int thetamax = (int) thetamax_state;
   
+  
+  //Food qualities
+  int num_j = gain.size();
+  
+  
+  //Build terminal fitness function
+  //It will be important to test result sensitivities to this function...
   NumericMatrix Wterm(xmax,thetamax);
   for (int i=xc;i<xmax;i++) {
     for (int j=0;j<thetamax;j++) {
@@ -43,9 +53,56 @@ NumericMatrix SDP_beq_func(
     }
   }
   
+  //Build fitness list, istar list
+  List W_theta(thetamax);
+  List jstar_theta(thetamax);
+  for (int i=0;i<thetamax;i++) {
+    NumericMatrix W_xt(xmax,tmax);
+    NumericMatrix jstar_xt(xmax,tmax-1);
+    for (int j=0;j<xmax;j++) {
+      W_xt(j,tmax-1) = Wterm(j,i);
+    }
+    W_theta(i) = W_xt;
+    jstar_theta(i) = jstar_xt;
+  }
+  
+  
+  //Begin backwards equation over theta
+  for (int theta=0;theta<thetamax;theta++) {
+
+    double theta_state = (double) theta + 1;
+    
+    NumericMatrix W_xt = W_theta(h);
+    NumericMatrix istar_xt = istar_theta(h);
+    
+    //Iterate backwards over t
+    for (int t=(tmax-1); t --> 0;) {
+      
+      //Itertate over x
+      for (int x=xc;x<xmax;x++) {
+        
+        double x_state = (double) x + 1;
+        
+        NumericVector value(num_j);
+        
+        //Iterate over potential foods j
+        
+        
+      }
+      
+      
+      
+      
+      
+    } //End t iterations
+    
+    
+    
+  } //End theta iterations
   
   
   
-  List Cout(5);
-  return Wterm;
+  
+  //List Cout(5);
+  return W_theta;
 }
