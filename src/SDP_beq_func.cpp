@@ -13,7 +13,8 @@ List SDP_beq_func(
   int tmax,
   NumericMatrix pk,
   NumericVector gain,
-  NumericVector cost
+  NumericVector cost,
+  IntegerVector seed
   ) {
     
     
@@ -105,19 +106,72 @@ List SDP_beq_func(
             
             //The case of k=0
             if (theta > 0) {
-              //Don't find food, don't each cache
+              
+              ////Don't find food, don't eat cache
               double x_dfdc = x_state - a*pow(Mc,b);
               double theta_dfdc = theta_state;
               
-              //Don't find food, eat cache
+              //Boundary conditions
+              if (x_dfdc < xc_state) {x_dfdc = xc_state;}
+              if (x_dfdc > xmax_state) {x_dfdc = xmax_state;}
+              if (theta_dfdc < 0) {theta_dfdc == 0;}
+              if (theta_dfdc > thetamax_state) {theta_dfdc = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_dfdc_low = (int) floor(x_dfdc);
+              int x_dfdc_high = x_dfdc + 1;
+              double x_dfdc_h = (double) x_dfdc_high;
+              int theta_dfdc_low = (int) floor(theta_dfdc);
+              int theta_dfdc_high = (int) theta_dfdc_low + 1;
+              double theta_dfdc_h = (double) theta_dfdc_high;
+              
+              //Interpolation weights
+              double qx_dfdc = x_dfdc_h - x_dfdc;
+              double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
+              //Adjust to represent indices rather than state
+              x_dfdc = x_dfdc - 1;
+              theta_dfdc = theta_dfdc - 1;
+              
+              //Define fitness
+              W_theta_low = W_theta(theta_dfdc_low);
+              W_theta_high= W_theta(theta_dfdc_high);
+              
+              W_dfdc = qtheta_dfdc_h*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
+              (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
+              qtheta_dfdc_l*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
+              (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
+              
+              
+              ////Don't find food, eat cache
               double x_dfc = x_state - a*pow(Mc,b);
               double theta_dfc = theta_state - Y_theta;
               
               //Boundary conditions
+              if (x_dfc < xc_state) {x_dfc = xc_state;}
+              if (x_dfc > xmax_state) {x_dfc = xmax_state;}
+              if (theta_dfc < 0) {theta_dfc == 0;}
+              if (theta_dfc > thetamax_state) {theta_dfc = thetamax_state;}
               
               //Fitness Interpolation
+              int x_dfc_low = (int) floor(x_dfc);
+              int x_dfc_high = x_dfc + 1;
+              double x_dfc_h = (double) x_dfc_high;
+              int theta_dfc_low = (int) floor(theta_dfc);
+              int theta_dfc_high = (int) theta_dfc_low + 1;
+              double theta_dfc_h = (double) theta_dfc_high;
               
+              double qx_dfc = x_dfc_h - x_dfc;
+              double qtheta_dfc = theta_dfc_h - theta_dfc;
               
+              //Adjust to represent indices rather than state
+              x_dfc = x_dfc - 1;
+              theta_dfc = theta_dfc - 1;
+              
+              W_dfc = qtheta_dfc_h*(qx_dfc*W_theta_low(x_dfc_low,t+1) + 
+              (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) + 
+              qtheta_dfc_l*(qx_dfc*W_theta_high(x_dfc_low,t+1) + 
+              (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
+
               //Which maximizes fitness over dfdc and dfc?
               NumericVector fitness_df(2);
               temp_v(0) = W_dfdc;

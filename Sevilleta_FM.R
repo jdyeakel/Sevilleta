@@ -29,4 +29,5 @@ Cout <- SDP_beq_func(
   tmax<-10,
   pk<-pk
   gain<-
-  cost<-)
+  cost<-
+  seed<-)
