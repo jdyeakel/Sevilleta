@@ -1,4 +1,6 @@
 library(Rcpp)
+sourceCpp("src/SDP_beq_func.cpp")
+
 
 #Sevilleta foraging model
 #Setup
@@ -16,10 +18,15 @@ for (j in 1:num_res) {
   pk[,j] <- pk[,j] / sum(pk[,j])
 }
 
-sourceCpp("src/SDP_beq_func.cpp")
+#Resource gain
+
+#Resource cost
+
 
 #Run SDP
 Cout <- SDP_beq_func(
-  Mc=5,
-  tmax=10,
-  pk=pk)
+  Mc<-5,
+  tmax<-10,
+  pk<-pk
+  gain<-
+  cost<-)

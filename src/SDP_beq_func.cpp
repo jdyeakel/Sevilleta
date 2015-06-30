@@ -14,95 +14,162 @@ List SDP_beq_func(
   NumericMatrix pk,
   NumericVector gain,
   NumericVector cost
-) {
-  
-  
-  //Define state variable max's and min's
-  //'State' refers to the value used in the calculation...
-  //Otherwise, the value is an integer and used in locating fitness values.
-  
-  //2750 kcal/kg
-  //~10 MJ in 2750 kcal.... so 10 MJ per kg.
-  double xmax_state = Mc*10; //Body size in kilograms to MegaJoules
-  int xmax = (int) floor(xmax_state);
-  double xc_state = 0.5*xmax_state;
-  int xc = (int) floor(xc_state);
-  
-  double thetamax_state = 500;
-  int thetamax = (int) thetamax_state;
-  
-  
-  //Food qualities
-  int num_j = gain.size();
-  
-  
-  //Build terminal fitness function
-  //It will be important to test result sensitivities to this function...
-  NumericMatrix Wterm(xmax,thetamax);
-  for (int i=xc;i<xmax;i++) {
-    for (int j=0;j<thetamax;j++) {
-      double x_state = (double) i+1;
-      double theta_state = (double) j+1;
-      Wterm(i,j) = 0.5*(2 - (xc_state/x_state) - (1/((0.01*theta_state)+1)));
-    }
-  }
-  double Wterm_max = Wterm(xmax-1,thetamax-1);
-  for (int i=xc;i<xmax;i++) {
-    for (int j=0;j<thetamax;j++) {
-      Wterm(i,j) = Wterm(i,j)/Wterm_max;
-    }
-  }
-  
-  //Build fitness list, istar list
-  List W_theta(thetamax);
-  List jstar_theta(thetamax);
-  for (int i=0;i<thetamax;i++) {
-    NumericMatrix W_xt(xmax,tmax);
-    NumericMatrix jstar_xt(xmax,tmax-1);
-    for (int j=0;j<xmax;j++) {
-      W_xt(j,tmax-1) = Wterm(j,i);
-    }
-    W_theta(i) = W_xt;
-    jstar_theta(i) = jstar_xt;
-  }
-  
-  
-  //Begin backwards equation over theta
-  for (int theta=0;theta<thetamax;theta++) {
-
-    double theta_state = (double) theta + 1;
+  ) {
     
-    NumericMatrix W_xt = W_theta(h);
-    NumericMatrix istar_xt = istar_theta(h);
     
-    //Iterate backwards over t
-    for (int t=(tmax-1); t --> 0;) {
-      
-      //Itertate over x
-      for (int x=xc;x<xmax;x++) {
-        
-        double x_state = (double) x + 1;
-        
-        NumericVector value(num_j);
-        
-        //Iterate over potential foods j
-        
-        
+    //Define state variable max's and min's
+    //'State' refers to the value used in the calculation...
+    //Otherwise, the value is an integer and used in locating fitness values.
+    
+    //2750 kcal/kg
+    //~10 MJ in 2750 kcal.... so 10 MJ per kg.
+    double xmax_state = Mc*10; //Body size in kilograms to MegaJoules
+    int xmax = (int) floor(xmax_state);
+    double xc_state = 0.5*xmax_state;
+    int xc = (int) floor(xc_state);
+    //Stomach capacity
+    double xs = 0.10*xmax_state;
+    
+    double thetamax_state = 500;
+    int thetamax = (int) thetamax_state;
+    
+    
+    //Food qualities
+    int num_res = gain.size();
+    int maxk = pk.size(1);
+    
+    //Build terminal fitness function
+    //It will be important to test result sensitivities to this function...
+    NumericMatrix Wterm(xmax,thetamax);
+    for (int i=xc;i<xmax;i++) {
+      for (int j=0;j<thetamax;j++) {
+        double x_state = (double) i+1;
+        double theta_state = (double) j+1;
+        Wterm(i,j) = 0.5*(2 - (xc_state/x_state) - (1/((0.01*theta_state)+1)));
       }
+    }
+    double Wterm_max = Wterm(xmax-1,thetamax-1);
+    for (int i=xc;i<xmax;i++) {
+      for (int j=0;j<thetamax;j++) {
+        Wterm(i,j) = Wterm(i,j)/Wterm_max;
+      }
+    }
+    
+    //Build fitness list, istar list
+    List W_theta(thetamax);
+    List jstar_theta(thetamax);
+    for (int i=0;i<thetamax;i++) {
+      NumericMatrix W_xt(xmax,tmax);
+      NumericMatrix jstar_xt(xmax,tmax-1);
+      for (int j=0;j<xmax;j++) {
+        W_xt(j,tmax-1) = Wterm(j,i);
+      }
+      W_theta(i) = W_xt;
+      jstar_theta(i) = jstar_xt;
+    }
+    
+    
+    //Begin backwards equation over theta
+    for (int theta=0;theta<thetamax;theta++) {
+      
+      double theta_state = (double) theta + 1;
+      
+      NumericMatrix W_xt = W_theta(h);
+      NumericMatrix istar_xt = istar_theta(h);
+      
+      //Iterate backwards over t
+      for (int t=(tmax-1); t --> 0;) {
+        
+        //Itertate over x
+        for (int x=xc;x<xmax;x++) {
+          
+          double x_state = (double) x + 1;
+          
+          NumericVector value(num_res);
+          
+          //Iterate over potential foods j
+          for(int j=0;j<num_res;j++) {
+            
+            double gainj = gain(j);
+            
+            NumericVector pkj(maxk);
+            for (int k=0;k<maxk;k++) {
+              pkj(k) = pk(k,j);
+            }
+            
+            
+            //Define Y_theta
+            NumericVector temp_v(2); temp_v(0)=theta_state; temp_v(1)=xs;
+            int minvalue = which_min(temp_v);
+            double Y_theta = temp_v(minvalue);
+            
+            //The case of k=0
+            //Don't find food, eat cache
+            double x_df = x_state - a*pow(Mc,b);
+            double theta_df = theta_state - Y_theta;
+            
+            //Iterate over nonzero values of k
+            for (k=1;k<kmax;k++) {
+              
+              //Not plus 1 bc we are 
+              double k_state = (double) k;
+              
+              
+              //Define Y_k
+              temp_v(0) = k_state*gainj; temp_v(1)=xs;
+              int minvalue = which_min(temp_v);
+              double Y_k = temp_v(minvalue);
+              
+              
+              //Different foraging decisions:
+              //Find food, reject, don't store, eat cache
+              x_fc
+              
+              //Find food, reject, store, eat cache
+              x_fsc
+              
+              //Find food, accept
+              x_f
+              
+              //Boundary Conditions
+              
+              //Interpolation
+              
+              
+              
+              //Find maximum of {W(xfc), W(xfsc), W(xf)}
+              NumericVector temp_v(3);
+              temp_v(0) = xfc;
+              temp_v(1) = xfsc;
+              temp_v(2) = xf;
+              int maxvalue = which_max(temp_v);
+              
+              
+            } //End k
+            
+            
+            
+            
+            
+            
+          } //End j
+          
+        } //End x
+        
+        
+        
+        
+        
+      } //End t iterations
       
       
       
-      
-      
-    } //End t iterations
+    } //End theta iterations
     
     
     
-  } //End theta iterations
+    
+    //List Cout(5);
+    return W_theta;
+  }
   
-  
-  
-  
-  //List Cout(5);
-  return W_theta;
-}
