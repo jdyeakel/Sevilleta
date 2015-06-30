@@ -104,9 +104,24 @@ List SDP_beq_func(
             double Y_theta = temp_v(minvalue);
             
             //The case of k=0
+            //Don't find food, don't each cache
+            double x_dfdc = x_state - a*pow(Mc,b);
+            double theta_dfdc = theta_state;
+            
             //Don't find food, eat cache
-            double x_df = x_state - a*pow(Mc,b);
-            double theta_df = theta_state - Y_theta;
+            double x_dfc = x_state - a*pow(Mc,b);
+            double theta_dfc = theta_state - Y_theta;
+            
+            //Boundary conditions
+            
+            //Fitness Interpolation
+            
+            
+            //Which maximizes fitness over dfdc and dfc?
+            NumericVector fitness_df(2);
+            temp_v(0) = W_dfdc;
+            temp_v(1) = W_dfc;
+            int max_dec_df = which_max(fitness_df);
             
             //Iterate over nonzero values of k
             for (k=1;k<kmax;k++) {
@@ -138,11 +153,13 @@ List SDP_beq_func(
               
               
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
-              NumericVector temp_v(3);
-              temp_v(0) = xfc;
-              temp_v(1) = xfsc;
-              temp_v(2) = xf;
-              int maxvalue = which_max(temp_v);
+              NumericVector fitness_f(5);
+              temp_v(0) = W_fdsdc;
+              temp_v(1) = W_fdsc;
+              temp_v(2) = W_fsdc;
+              temp_v(3) = W_fsc;
+              temp_v(4) = W_f;
+              int max_dec_f = which_max(fitness_f);
               
               
             } //End k
