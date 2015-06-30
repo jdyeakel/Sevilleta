@@ -149,10 +149,8 @@ List SDP_beq_func(
             W_theta_low = W_theta(theta_dfdc_low);
             W_theta_high= W_theta(theta_dfdc_high);
             
-            W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
-            (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
-            (1 - qtheta_dfdc)*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
-            (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
+            double W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
+            (1 - qtheta_dfdc)*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) +  (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
             
             
             //Boundary conditions
@@ -176,17 +174,18 @@ List SDP_beq_func(
             x_dfc = x_dfc - 1;
             theta_dfc = theta_dfc - 1;
             
-            W_dfc = qtheta_dfc*(qx_dfc*W_theta_low(x_dfc_low,t+1) +
-            (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) +
-            (1 - qtheta_dfc)*(qx_dfc*W_theta_high(x_dfc_low,t+1) +
-            (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
+            double W_dfc = qtheta_dfc*(qx_dfc*W_theta_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) +
+            (1 - qtheta_dfc)*(qx_dfc*W_theta_high(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
+            
             
             //Which maximizes fitness over dfdc and dfc?
             NumericVector fitness_df(2);
             temp_v(0) = W_dfdc;
             temp_v(1) = W_dfc;
             int max_dec_df = which_max(fitness_df);
-            double W_max_df = fitness_df(max_dec_df);
+            
+            //Weighted by the probability of k=0
+            double W_max_df = pk(0,j)*fitness_df(max_dec_df);
             
             
             IntegerVector max_dec_f(kmax);
@@ -272,11 +271,8 @@ List SDP_beq_func(
               x_fdsdc = x_fdsdc - 1;
               theta_fdsdc = theta_fdsdc - 1;
               
-              W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) +
-              (1 - qx_fdsdc)*W_theta_low(x_fdsdc_high,t+1)) +
-              (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) +
-              (1 - qx_fdsdc)*W_theta_high(x_fdsdc_high,t+1));
-              
+              double W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_low(x_fdsdc_high,t+1)) +
+              (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_high(x_fdsdc_high,t+1));
               
               
               //Boundary conditions
@@ -300,12 +296,8 @@ List SDP_beq_func(
               x_fdsc = x_fdsc - 1;
               theta_fdsc = theta_fdsc - 1;
               
-              W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) +
-              (1 - qx_fdsc)*W_theta_low(x_fdsc_high,t+1)) +
-              (1 - qtheta_fdsc)*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) +
-              (1 - qx_fdsc)*W_theta_high(x_fdsc_high,t+1));
-              
-              
+              double W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_low(x_fdsc_high,t+1)) +
+              (1 - qtheta_fdsc)*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_high(x_fdsc_high,t+1));
               
               
               //Boundary conditions
@@ -329,11 +321,8 @@ List SDP_beq_func(
               x_fsdc = x_fsdc - 1;
               theta_fsdc = theta_fsdc - 1;
               
-              W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) +
-              (1 - qx_fsdc)*W_theta_low(x_fsdc_high,t+1)) +
-              (1 - qtheta_fsdc)*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) +
-              (1 - qx_fsdc)*W_theta_high(x_fsdc_high,t+1));
-              
+              double W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_low(x_fsdc_high,t+1)) +
+              (1 - qtheta_fsdc)*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_high(x_fsdc_high,t+1));
               
               
               //Boundary conditions
@@ -357,10 +346,8 @@ List SDP_beq_func(
               x_fsc = x_fsc - 1;
               theta_fsc = theta_fsc - 1;
               
-              W_fsc = qtheta_fsc*(qx_fsc*W_theta_low(x_fsc_low,t+1) +
-              (1 - qx_fsc)*W_theta_low(x_fsc_high,t+1)) +
-              (1-qtheta_fsc)*(qx_fsc*W_theta_high(x_fsc_low,t+1) +
-              (1 - qx_fsc)*W_theta_high(x_fsc_high,t+1));
+              double W_fsc = qtheta_fsc*(qx_fsc*W_theta_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_low(x_fsc_high,t+1)) +
+              (1-qtheta_fsc)*(qx_fsc*W_theta_high(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_high(x_fsc_high,t+1));
               
               
               //Boundary conditions
@@ -384,11 +371,8 @@ List SDP_beq_func(
               x_fs = x_fs - 1;
               theta_fs = theta_fs - 1;
               
-              W_fs = qtheta_fs*(qx_fs*W_theta_low(x_fs_low,t+1) +
-              (1 - qx_fs)*W_theta_low(x_fs_high,t+1)) +
-              (1 - qtheta_fs)*(qx_fs*W_theta_high(x_fs_low,t+1) +
-              (1 - qx_fs)*W_theta_high(x_fs_high,t+1));
-              
+              double W_fs = qtheta_fs*(qx_fs*W_theta_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_low(x_fs_high,t+1)) +
+              (1 - qtheta_fs)*(qx_fs*W_theta_high(x_fs_low,t+1) + (1 - qx_fs)*W_theta_high(x_fs_high,t+1));
               
               
               //Boundary conditions
@@ -412,15 +396,8 @@ List SDP_beq_func(
               x_fds = x_fds - 1;
               theta_fds = theta_fds - 1;
               
-              W_fds = qtheta_fds*(qx_fds*W_theta_low(x_fds_low,t+1) +
-              (1 - qx_fds)*W_theta_low(x_fds_high,t+1)) +
-              (1 - qtheta_fds)*(qx_fds*W_theta_high(x_fds_low,t+1) +
-              (1 - qx_fds)*W_theta_high(x_fds_high,t+1));
-              
-              //Boundary Conditions
-              
-              //Interpolation
-              
+              double W_fds = qtheta_fds*(qx_fds*W_theta_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_low(x_fds_high,t+1)) +
+              (1 - qtheta_fds)*(qx_fds*W_theta_high(x_fds_low,t+1) + (1 - qx_fds)*W_theta_high(x_fds_high,t+1));
               
               
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
@@ -433,33 +410,35 @@ List SDP_beq_func(
               fitness_f(5) = W_fds;
               
               max_dec_f(k) = which_max(fitness_f);
-              W_max_f(k) = fitness_f(max_dec_f);
+              
+              //Fitness value weighted by the probability of k
+              W_max_f(k) = pk(k,j)*fitness_f(max_dec_f);
               
               
             } //End k
             
+            //Weight fitness by pr(k)
+            double W_k0 = W_max_df;
+            double W_k = sum(W_max_f);
             
-            
-            
-            
+            value(j) = W_k0 + W_k;
             
           } //End j
+          
+          //Find maximum value over j
+          int maxvalue = which_max(value);
+          
+          
           
         } //End x
         
         
-        
-        
-        
       } //End t iterations
       
-      
-      
+        
     } //End theta iterations
     
-    
-    
-    
+
     //List Cout(5);
     return W_theta;
   }
