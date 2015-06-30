@@ -203,7 +203,13 @@ List SDP_beq_func(
               temp_v(0) = k_state*gainj; temp_v(1)=xs;
               int minvalue = which_min(temp_v);
               double Y_k = temp_v(minvalue);
+              double Y_remainder = k_state*gainj - Y_k;
+              if (Y_remainder < 0) {Y_remainder = 0;}
               
+              //Define Y_remain
+              NumericVector temp_remain(2); temp_remain(0)=Y_remainder; temp_remain(1)=xs;
+              int minvalue_remain = which_min(temp_remain);
+              double Y_remain = temp_remain(minvalue);
               
               ////////////
               //Decisions
@@ -217,8 +223,8 @@ List SDP_beq_func(
               
               ////Find food, reject, don't store, eat cache
               ////
-              double x_fdsc = x_state - a*pow(Mc,b);
-              double theta_fdsc = theta_state - Y_theta;
+              double x_fdsc = x_state - a*pow(Mc,b) + Y_theta;
+              double theta_fdsc = theta_state - Y_theta - Y_decay;
               ////
               
               ////Find food, store, don't each cache
@@ -229,20 +235,20 @@ List SDP_beq_func(
               
               ////Find food, store, eat cache
               ////
-              double x_fsc = x_state - a*pow(Mc,b);
-              double theta_fsc = theta_state - Y_theta;
+              double x_fsc = x_state - a*pow(Mc,b) + Y_theta;
+              double theta_fsc = theta_state + Y_k - Y_theta - Y_decay;
               ////
               
               ////Find food, accept, store remainder
               ////
-              double x_fs = x_state - a*pow(Mc,b);
-              double theta_fs = theta_state - Y_theta;
+              double x_fs = x_state - a*pow(Mc,b) + Y_k;
+              double theta_fs = theta_state + Y_remain - Y_decay;
               ////
               
               ////find food, accept, don't store remainder
               ////
-              double x_fds = x_state - a*pow(Mc,b);
-              double theta_fds = theta_state - Y_theta;
+              double x_fds = x_state - a*pow(Mc,b) + Y_k;
+              double theta_fds = theta_state - Y_decay;
               ////
               
               //Boundary conditions
