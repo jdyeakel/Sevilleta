@@ -72,10 +72,10 @@ List SDP_beq_func(
     //Begin backwards equation over theta
     for (int theta=0;theta<thetamax;theta++) {
       
-      double theta_state = (double) theta + 1;
+      double theta_state = (double) theta;
       
-      NumericMatrix W_xt = W_theta(h);
-      NumericMatrix istar_xt = istar_theta(h);
+      NumericMatrix W_xt = W_theta(theta);
+      NumericMatrix istar_xt = istar_theta(theta);
       
       //Iterate backwards over t
       for (int t=(tmax-1); t --> 0;) {
@@ -104,24 +104,30 @@ List SDP_beq_func(
             double Y_theta = temp_v(minvalue);
             
             //The case of k=0
-            //Don't find food, don't each cache
-            double x_dfdc = x_state - a*pow(Mc,b);
-            double theta_dfdc = theta_state;
-            
-            //Don't find food, eat cache
-            double x_dfc = x_state - a*pow(Mc,b);
-            double theta_dfc = theta_state - Y_theta;
-            
-            //Boundary conditions
-            
-            //Fitness Interpolation
-            
-            
-            //Which maximizes fitness over dfdc and dfc?
-            NumericVector fitness_df(2);
-            temp_v(0) = W_dfdc;
-            temp_v(1) = W_dfc;
-            int max_dec_df = which_max(fitness_df);
+            if (theta > 0) {
+              //Don't find food, don't each cache
+              double x_dfdc = x_state - a*pow(Mc,b);
+              double theta_dfdc = theta_state;
+              
+              //Don't find food, eat cache
+              double x_dfc = x_state - a*pow(Mc,b);
+              double theta_dfc = theta_state - Y_theta;
+              
+              //Boundary conditions
+              
+              //Fitness Interpolation
+              
+              
+              //Which maximizes fitness over dfdc and dfc?
+              NumericVector fitness_df(2);
+              temp_v(0) = W_dfdc;
+              temp_v(1) = W_dfc;
+              int max_dec_df = which_max(fitness_df);
+            } else {
+              //If there is no cache, can't each from cache
+              //Automatically the decision is dfdc
+              max_dec_df = 0;
+            }
             
             //Iterate over nonzero values of k
             for (k=1;k<kmax;k++) {
@@ -135,7 +141,9 @@ List SDP_beq_func(
               int minvalue = which_min(temp_v);
               double Y_k = temp_v(minvalue);
               
-              
+              if (theta_state > 0) {
+                
+              }
               //Different foraging decisions:
               //Find food, reject, don't store, eat cache
               x_fc
