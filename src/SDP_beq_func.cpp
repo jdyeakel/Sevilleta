@@ -127,7 +127,7 @@ List SDP_beq_func(
             //Boundary conditions
             if (x_dfdc < xc_state) {x_dfdc = xc_state;}
             if (x_dfdc > xmax_state) {x_dfdc = xmax_state;}
-            if (theta_dfdc < 0) {theta_dfdc == 0;}
+            if (theta_dfdc < 0) {theta_dfdc=0;}
             if (theta_dfdc > thetamax_state) {theta_dfdc = thetamax_state;}
             
             //Fitness Interpolation
@@ -149,16 +149,16 @@ List SDP_beq_func(
             W_theta_low = W_theta(theta_dfdc_low);
             W_theta_high= W_theta(theta_dfdc_high);
             
-            W_dfdc = qtheta_dfdc_h*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
+            W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
             (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
-            qtheta_dfdc_l*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
+            (1 - qtheta_dfdc)*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
             (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
             
             
             //Boundary conditions
             if (x_dfc < xc_state) {x_dfc = xc_state;}
             if (x_dfc > xmax_state) {x_dfc = xmax_state;}
-            if (theta_dfc < 0) {theta_dfc == 0;}
+            if (theta_dfc < 0) {theta_dfc=0;}
             if (theta_dfc > thetamax_state) {theta_dfc = thetamax_state;}
             
             //Fitness Interpolation
@@ -176,9 +176,9 @@ List SDP_beq_func(
             x_dfc = x_dfc - 1;
             theta_dfc = theta_dfc - 1;
             
-            W_dfc = qtheta_dfc_h*(qx_dfc*W_theta_low(x_dfc_low,t+1) +
+            W_dfc = qtheta_dfc*(qx_dfc*W_theta_low(x_dfc_low,t+1) +
             (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) +
-            qtheta_dfc_l*(qx_dfc*W_theta_high(x_dfc_low,t+1) +
+            (1 - qtheta_dfc)*(qx_dfc*W_theta_high(x_dfc_low,t+1) +
             (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
             
             //Which maximizes fitness over dfdc and dfc?
@@ -216,37 +216,37 @@ List SDP_beq_func(
               ///////////
               
               ////Find food, reject, don't store, don't eat cache
-              ////
+              //// FDSDC
               double x_fdsdc = x_state - a*pow(Mc,b);
               double theta_fdsdc = theta_state - Y_decay;
               ////
               
               ////Find food, reject, don't store, eat cache
-              ////
+              //// FDSC
               double x_fdsc = x_state - a*pow(Mc,b) + Y_theta;
               double theta_fdsc = theta_state - Y_theta - Y_decay;
-              ////
+              //// 
               
               ////Find food, store, don't each cache
-              ////
+              //// FSDC
               double x_fsdc = x_state - a*pow(Mc,b);
-              double theta_fsdc = theta_state - Y_theta;
-              ////
+              double theta_fsdc = theta_state + Y_k - Y_decay;
+              //// 
               
               ////Find food, store, eat cache
-              ////
+              //// FSC
               double x_fsc = x_state - a*pow(Mc,b) + Y_theta;
               double theta_fsc = theta_state + Y_k - Y_theta - Y_decay;
               ////
               
               ////Find food, accept, store remainder
-              ////
+              //// FS
               double x_fs = x_state - a*pow(Mc,b) + Y_k;
               double theta_fs = theta_state + Y_remain - Y_decay;
               ////
               
               ////find food, accept, don't store remainder
-              ////
+              //// FDS
               double x_fds = x_state - a*pow(Mc,b) + Y_k;
               double theta_fds = theta_state - Y_decay;
               ////
@@ -254,7 +254,7 @@ List SDP_beq_func(
               //Boundary conditions
               if (x_fdsdc < xc_state) {x_fdsdc = xc_state;}
               if (x_fdsdc > xmax_state) {x_fdsdc = xmax_state;}
-              if (theta_fdsdc < 0) {theta_fdsdc == 0;}
+              if (theta_fdsdc < 0) {theta_fdsdc=0;}
               if (theta_fdsdc > thetamax_state) {theta_fdsdc = thetamax_state;}
               
               //Fitness Interpolation
@@ -272,9 +272,9 @@ List SDP_beq_func(
               x_fdsdc = x_fdsdc - 1;
               theta_fdsdc = theta_fdsdc - 1;
               
-              W_fdsdc = qtheta_fdsdc_h*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) +
+              W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) +
               (1 - qx_fdsdc)*W_theta_low(x_fdsdc_high,t+1)) +
-              qtheta_fdsdc_l*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) +
+              (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) +
               (1 - qx_fdsdc)*W_theta_high(x_fdsdc_high,t+1));
               
               
@@ -282,7 +282,7 @@ List SDP_beq_func(
               //Boundary conditions
               if (x_fdsc < xc_state) {x_fdsc = xc_state;}
               if (x_fdsc > xmax_state) {x_fdsc = xmax_state;}
-              if (theta_fdsc < 0) {theta_fdsc == 0;}
+              if (theta_fdsc < 0) {theta_fdsc=0;}
               if (theta_fdsc > thetamax_state) {theta_fdsc = thetamax_state;}
               
               //Fitness Interpolation
@@ -300,9 +300,9 @@ List SDP_beq_func(
               x_fdsc = x_fdsc - 1;
               theta_fdsc = theta_fdsc - 1;
               
-              W_fdsc = qtheta_fdsc_h*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) +
+              W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) +
               (1 - qx_fdsc)*W_theta_low(x_fdsc_high,t+1)) +
-              qtheta_fdsc_l*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) +
+              (1 - qtheta_fdsc)*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) +
               (1 - qx_fdsc)*W_theta_high(x_fdsc_high,t+1));
               
               
@@ -311,7 +311,7 @@ List SDP_beq_func(
               //Boundary conditions
               if (x_fsdc < xc_state) {x_fsdc = xc_state;}
               if (x_fsdc > xmax_state) {x_fsdc = xmax_state;}
-              if (theta_fsdc < 0) {theta_fsdc == 0;}
+              if (theta_fsdc < 0) {theta_fsdc=0;}
               if (theta_fsdc > thetamax_state) {theta_fsdc = thetamax_state;}
               
               //Fitness Interpolation
@@ -329,9 +329,9 @@ List SDP_beq_func(
               x_fsdc = x_fsdc - 1;
               theta_fsdc = theta_fsdc - 1;
               
-              W_fsdc = qtheta_fsdc_h*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) +
+              W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) +
               (1 - qx_fsdc)*W_theta_low(x_fsdc_high,t+1)) +
-              qtheta_fsdc_l*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) +
+              (1 - qtheta_fsdc)*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) +
               (1 - qx_fsdc)*W_theta_high(x_fsdc_high,t+1));
               
               
@@ -339,7 +339,7 @@ List SDP_beq_func(
               //Boundary conditions
               if (x_fsc < xc_state) {x_fsc = xc_state;}
               if (x_fsc > xmax_state) {x_fsc = xmax_state;}
-              if (theta_fsc < 0) {theta_fsc == 0;}
+              if (theta_fsc < 0) {theta_fsc=0;}
               if (theta_fsc > thetamax_state) {theta_fsc = thetamax_state;}
               
               //Fitness Interpolation
@@ -357,16 +357,16 @@ List SDP_beq_func(
               x_fsc = x_fsc - 1;
               theta_fsc = theta_fsc - 1;
               
-              W_fsc = qtheta_fsc_h*(qx_fsc*W_theta_low(x_fsc_low,t+1) +
+              W_fsc = qtheta_fsc*(qx_fsc*W_theta_low(x_fsc_low,t+1) +
               (1 - qx_fsc)*W_theta_low(x_fsc_high,t+1)) +
-              qtheta_fsc_l*(qx_fsc*W_theta_high(x_fsc_low,t+1) +
+              (1-qtheta_fsc)*(qx_fsc*W_theta_high(x_fsc_low,t+1) +
               (1 - qx_fsc)*W_theta_high(x_fsc_high,t+1));
               
               
               //Boundary conditions
               if (x_fs < xc_state) {x_fs = xc_state;}
               if (x_fs > xmax_state) {x_fs = xmax_state;}
-              if (theta_fs < 0) {theta_fs == 0;}
+              if (theta_fs < 0) {theta_fs=0;}
               if (theta_fs > thetamax_state) {theta_fs = thetamax_state;}
               
               //Fitness Interpolation
@@ -384,9 +384,9 @@ List SDP_beq_func(
               x_fs = x_fs - 1;
               theta_fs = theta_fs - 1;
               
-              W_fs = qtheta_fs_h*(qx_fs*W_theta_low(x_fs_low,t+1) +
+              W_fs = qtheta_fs*(qx_fs*W_theta_low(x_fs_low,t+1) +
               (1 - qx_fs)*W_theta_low(x_fs_high,t+1)) +
-              qtheta_fs_l*(qx_fs*W_theta_high(x_fs_low,t+1) +
+              (1 - qtheta_fs)*(qx_fs*W_theta_high(x_fs_low,t+1) +
               (1 - qx_fs)*W_theta_high(x_fs_high,t+1));
               
               
@@ -394,7 +394,7 @@ List SDP_beq_func(
               //Boundary conditions
               if (x_fds < xc_state) {x_fds = xc_state;}
               if (x_fds > xmax_state) {x_fds = xmax_state;}
-              if (theta_fds < 0) {theta_fds == 0;}
+              if (theta_fds < 0) {theta_fds=0;}
               if (theta_fds > thetamax_state) {theta_fds = thetamax_state;}
               
               //Fitness Interpolation
@@ -412,9 +412,9 @@ List SDP_beq_func(
               x_fds = x_fds - 1;
               theta_fds = theta_fds - 1;
               
-              W_fds = qtheta_fds_h*(qx_fds*W_theta_low(x_fds_low,t+1) +
+              W_fds = qtheta_fds*(qx_fds*W_theta_low(x_fds_low,t+1) +
               (1 - qx_fds)*W_theta_low(x_fds_high,t+1)) +
-              qtheta_fds_l*(qx_fds*W_theta_high(x_fds_low,t+1) +
+              (1 - qtheta_fds)*(qx_fds*W_theta_high(x_fds_low,t+1) +
               (1 - qx_fds)*W_theta_high(x_fds_high,t+1));
               
               //Boundary Conditions
