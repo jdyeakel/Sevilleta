@@ -33,11 +33,13 @@ List SDP_beq_func(
     
     double thetamax_state = 500;
     int thetamax = (int) thetamax_state;
-    
+    double Y_decay = 5;
     
     //Food qualities
     int num_res = gain.size();
     int maxk = pk.size(1);
+    
+    
     
     //Build terminal fitness function
     //It will be important to test result sensitivities to this function...
@@ -104,84 +106,91 @@ List SDP_beq_func(
             int minvalue = which_min(temp_v);
             double Y_theta = temp_v(minvalue);
             
-            //The case of k=0
-            if (theta > 0) {
-              
-              ////Don't find food, don't eat cache
-              double x_dfdc = x_state - a*pow(Mc,b);
-              double theta_dfdc = theta_state;
-              
-              //Boundary conditions
-              if (x_dfdc < xc_state) {x_dfdc = xc_state;}
-              if (x_dfdc > xmax_state) {x_dfdc = xmax_state;}
-              if (theta_dfdc < 0) {theta_dfdc == 0;}
-              if (theta_dfdc > thetamax_state) {theta_dfdc = thetamax_state;}
-              
-              //Fitness Interpolation
-              int x_dfdc_low = (int) floor(x_dfdc);
-              int x_dfdc_high = x_dfdc + 1;
-              double x_dfdc_h = (double) x_dfdc_high;
-              int theta_dfdc_low = (int) floor(theta_dfdc);
-              int theta_dfdc_high = (int) theta_dfdc_low + 1;
-              double theta_dfdc_h = (double) theta_dfdc_high;
-              
-              //Interpolation weights
-              double qx_dfdc = x_dfdc_h - x_dfdc;
-              double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
-              //Adjust to represent indices rather than state
-              x_dfdc = x_dfdc - 1;
-              theta_dfdc = theta_dfdc - 1;
-              
-              //Define fitness
-              W_theta_low = W_theta(theta_dfdc_low);
-              W_theta_high= W_theta(theta_dfdc_high);
-              
-              W_dfdc = qtheta_dfdc_h*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
-              (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
-              qtheta_dfdc_l*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
-              (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
-              
-              
-              ////Don't find food, eat cache
-              double x_dfc = x_state - a*pow(Mc,b);
-              double theta_dfc = theta_state - Y_theta;
-              
-              //Boundary conditions
-              if (x_dfc < xc_state) {x_dfc = xc_state;}
-              if (x_dfc > xmax_state) {x_dfc = xmax_state;}
-              if (theta_dfc < 0) {theta_dfc == 0;}
-              if (theta_dfc > thetamax_state) {theta_dfc = thetamax_state;}
-              
-              //Fitness Interpolation
-              int x_dfc_low = (int) floor(x_dfc);
-              int x_dfc_high = x_dfc + 1;
-              double x_dfc_h = (double) x_dfc_high;
-              int theta_dfc_low = (int) floor(theta_dfc);
-              int theta_dfc_high = (int) theta_dfc_low + 1;
-              double theta_dfc_h = (double) theta_dfc_high;
-              
-              double qx_dfc = x_dfc_h - x_dfc;
-              double qtheta_dfc = theta_dfc_h - theta_dfc;
-              
-              //Adjust to represent indices rather than state
-              x_dfc = x_dfc - 1;
-              theta_dfc = theta_dfc - 1;
-              
-              W_dfc = qtheta_dfc_h*(qx_dfc*W_theta_low(x_dfc_low,t+1) + 
-              (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) + 
-              qtheta_dfc_l*(qx_dfc*W_theta_high(x_dfc_low,t+1) + 
-              (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
-
-              //Which maximizes fitness over dfdc and dfc?
-              NumericVector fitness_df(2);
-              temp_v(0) = W_dfdc;
-              temp_v(1) = W_dfc;
-              int max_dec_df = which_max(fitness_df);
-            } else {
-              //If there is no cache, can't each from cache
-              //Automatically the decision is dfdc
-              max_dec_df = 0;
-            }
+            //The case of k=0    
+            
+            ////////////
+            //Decisions
+            ///////////
+            
+            ////Don't find food, don't eat cache
+            ////
+            double x_dfdc = x_state - a*pow(Mc,b);
+            double theta_dfdc = theta_state;
+            ////
+            
+            ////Don't find food, eat cache
+            ////
+            double x_dfc = x_state - a*pow(Mc,b);
+            double theta_dfc = theta_state - Y_theta;
+            ////
+            
+            //Boundary conditions
+            if (x_dfdc < xc_state) {x_dfdc = xc_state;}
+            if (x_dfdc > xmax_state) {x_dfdc = xmax_state;}
+            if (theta_dfdc < 0) {theta_dfdc == 0;}
+            if (theta_dfdc > thetamax_state) {theta_dfdc = thetamax_state;}
+            
+            //Fitness Interpolation
+            int x_dfdc_low = (int) floor(x_dfdc);
+            int x_dfdc_high = x_dfdc + 1;
+            double x_dfdc_h = (double) x_dfdc_high;
+            int theta_dfdc_low = (int) floor(theta_dfdc);
+            int theta_dfdc_high = (int) theta_dfdc_low + 1;
+            double theta_dfdc_h = (double) theta_dfdc_high;
+            
+            //Interpolation weights
+            double qx_dfdc = x_dfdc_h - x_dfdc;
+            double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
+            //Adjust to represent indices rather than state
+            x_dfdc = x_dfdc - 1;
+            theta_dfdc = theta_dfdc - 1;
+            
+            //Define fitness
+            W_theta_low = W_theta(theta_dfdc_low);
+            W_theta_high= W_theta(theta_dfdc_high);
+            
+            W_dfdc = qtheta_dfdc_h*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + 
+            (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
+            qtheta_dfdc_l*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) + 
+            (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
+            
+            
+            //Boundary conditions
+            if (x_dfc < xc_state) {x_dfc = xc_state;}
+            if (x_dfc > xmax_state) {x_dfc = xmax_state;}
+            if (theta_dfc < 0) {theta_dfc == 0;}
+            if (theta_dfc > thetamax_state) {theta_dfc = thetamax_state;}
+            
+            //Fitness Interpolation
+            int x_dfc_low = (int) floor(x_dfc);
+            int x_dfc_high = x_dfc + 1;
+            double x_dfc_h = (double) x_dfc_high;
+            int theta_dfc_low = (int) floor(theta_dfc);
+            int theta_dfc_high = (int) theta_dfc_low + 1;
+            double theta_dfc_h = (double) theta_dfc_high;
+            
+            double qx_dfc = x_dfc_h - x_dfc;
+            double qtheta_dfc = theta_dfc_h - theta_dfc;
+            
+            //Adjust to represent indices rather than state
+            x_dfc = x_dfc - 1;
+            theta_dfc = theta_dfc - 1;
+            
+            W_dfc = qtheta_dfc_h*(qx_dfc*W_theta_low(x_dfc_low,t+1) +
+            (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) +
+            qtheta_dfc_l*(qx_dfc*W_theta_high(x_dfc_low,t+1) +
+            (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
+            
+            //Which maximizes fitness over dfdc and dfc?
+            NumericVector fitness_df(2);
+            temp_v(0) = W_dfdc;
+            temp_v(1) = W_dfc;
+            int max_dec_df = which_max(fitness_df);
+            double W_max_df = fitness_df(max_dec_df);
+            
+            
+            IntegerVector max_dec_f(kmax);
+            NumericVector W_max_f(kmax);
             
             //Iterate over nonzero values of k
             for (k=1;k<kmax;k++) {
@@ -195,18 +204,212 @@ List SDP_beq_func(
               int minvalue = which_min(temp_v);
               double Y_k = temp_v(minvalue);
               
-              if (theta_state > 0) {
-                
-              }
-              //Different foraging decisions:
-              //Find food, reject, don't store, eat cache
-              x_fc
               
-              //Find food, reject, store, eat cache
-              x_fsc
+              ////////////
+              //Decisions
+              ///////////
               
-              //Find food, accept
-              x_f
+              ////Find food, reject, don't store, don't eat cache
+              ////
+              double x_fdsdc = x_state - a*pow(Mc,b);
+              double theta_fdsdc = theta_state - Y_decay;
+              ////
+              
+              ////Find food, reject, don't store, eat cache
+              ////
+              double x_fdsc = x_state - a*pow(Mc,b);
+              double theta_fdsc = theta_state - Y_theta;
+              ////
+              
+              ////Find food, store, don't each cache
+              ////
+              double x_fsdc = x_state - a*pow(Mc,b);
+              double theta_fsdc = theta_state - Y_theta;
+              ////
+              
+              ////Find food, store, eat cache
+              ////
+              double x_fsc = x_state - a*pow(Mc,b);
+              double theta_fsc = theta_state - Y_theta;
+              ////
+              
+              ////Find food, accept, store remainder
+              ////
+              double x_fs = x_state - a*pow(Mc,b);
+              double theta_fs = theta_state - Y_theta;
+              ////
+              
+              ////find food, accept, don't store remainder
+              ////
+              double x_fds = x_state - a*pow(Mc,b);
+              double theta_fds = theta_state - Y_theta;
+              ////
+              
+              //Boundary conditions
+              if (x_fdsdc < xc_state) {x_fdsdc = xc_state;}
+              if (x_fdsdc > xmax_state) {x_fdsdc = xmax_state;}
+              if (theta_fdsdc < 0) {theta_fdsdc == 0;}
+              if (theta_fdsdc > thetamax_state) {theta_fdsdc = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fdsdc_low = (int) floor(x_fdsdc);
+              int x_fdsdc_high = x_fdsdc + 1;
+              double x_fdsdc_h = (double) x_fdsdc_high;
+              int theta_fdsdc_low = (int) floor(theta_fdsdc);
+              int theta_fdsdc_high = (int) theta_fdsdc_low + 1;
+              double theta_fdsdc_h = (double) theta_fdsdc_high;
+              
+              double qx_fdsdc = x_fdsdc_h - x_fdsdc;
+              double qtheta_fdsdc = theta_fdsdc_h - theta_fdsdc;
+              
+              //Adjust to represent indices rather than state
+              x_fdsdc = x_fdsdc - 1;
+              theta_fdsdc = theta_fdsdc - 1;
+              
+              W_fdsdc = qtheta_fdsdc_h*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) +
+              (1 - qx_fdsdc)*W_theta_low(x_fdsdc_high,t+1)) +
+              qtheta_fdsdc_l*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) +
+              (1 - qx_fdsdc)*W_theta_high(x_fdsdc_high,t+1));
+              
+              
+              
+              //Boundary conditions
+              if (x_fdsc < xc_state) {x_fdsc = xc_state;}
+              if (x_fdsc > xmax_state) {x_fdsc = xmax_state;}
+              if (theta_fdsc < 0) {theta_fdsc == 0;}
+              if (theta_fdsc > thetamax_state) {theta_fdsc = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fdsc_low = (int) floor(x_fdsc);
+              int x_fdsc_high = x_fdsc + 1;
+              double x_fdsc_h = (double) x_fdsc_high;
+              int theta_fdsc_low = (int) floor(theta_fdsc);
+              int theta_fdsc_high = (int) theta_fdsc_low + 1;
+              double theta_fdsc_h = (double) theta_fdsc_high;
+              
+              double qx_fdsc = x_fdsc_h - x_fdsc;
+              double qtheta_fdsc = theta_fdsc_h - theta_fdsc;
+              
+              //Adjust to represent indices rather than state
+              x_fdsc = x_fdsc - 1;
+              theta_fdsc = theta_fdsc - 1;
+              
+              W_fdsc = qtheta_fdsc_h*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) +
+              (1 - qx_fdsc)*W_theta_low(x_fdsc_high,t+1)) +
+              qtheta_fdsc_l*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) +
+              (1 - qx_fdsc)*W_theta_high(x_fdsc_high,t+1));
+              
+              
+              
+              
+              //Boundary conditions
+              if (x_fsdc < xc_state) {x_fsdc = xc_state;}
+              if (x_fsdc > xmax_state) {x_fsdc = xmax_state;}
+              if (theta_fsdc < 0) {theta_fsdc == 0;}
+              if (theta_fsdc > thetamax_state) {theta_fsdc = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fsdc_low = (int) floor(x_fsdc);
+              int x_fsdc_high = x_fsdc + 1;
+              double x_fsdc_h = (double) x_fsdc_high;
+              int theta_fsdc_low = (int) floor(theta_fsdc);
+              int theta_fsdc_high = (int) theta_fsdc_low + 1;
+              double theta_fsdc_h = (double) theta_fsdc_high;
+              
+              double qx_fsdc = x_fsdc_h - x_fsdc;
+              double qtheta_fsdc = theta_fsdc_h - theta_fsdc;
+              
+              //Adjust to represent indices rather than state
+              x_fsdc = x_fsdc - 1;
+              theta_fsdc = theta_fsdc - 1;
+              
+              W_fsdc = qtheta_fsdc_h*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) +
+              (1 - qx_fsdc)*W_theta_low(x_fsdc_high,t+1)) +
+              qtheta_fsdc_l*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) +
+              (1 - qx_fsdc)*W_theta_high(x_fsdc_high,t+1));
+              
+              
+              
+              //Boundary conditions
+              if (x_fsc < xc_state) {x_fsc = xc_state;}
+              if (x_fsc > xmax_state) {x_fsc = xmax_state;}
+              if (theta_fsc < 0) {theta_fsc == 0;}
+              if (theta_fsc > thetamax_state) {theta_fsc = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fsc_low = (int) floor(x_fsc);
+              int x_fsc_high = x_fsc + 1;
+              double x_fsc_h = (double) x_fsc_high;
+              int theta_fsc_low = (int) floor(theta_fsc);
+              int theta_fsc_high = (int) theta_fsc_low + 1;
+              double theta_fsc_h = (double) theta_fsc_high;
+              
+              double qx_fsc = x_fsc_h - x_fsc;
+              double qtheta_fsc = theta_fsc_h - theta_fsc;
+              
+              //Adjust to represent indices rather than state
+              x_fsc = x_fsc - 1;
+              theta_fsc = theta_fsc - 1;
+              
+              W_fsc = qtheta_fsc_h*(qx_fsc*W_theta_low(x_fsc_low,t+1) +
+              (1 - qx_fsc)*W_theta_low(x_fsc_high,t+1)) +
+              qtheta_fsc_l*(qx_fsc*W_theta_high(x_fsc_low,t+1) +
+              (1 - qx_fsc)*W_theta_high(x_fsc_high,t+1));
+              
+              
+              //Boundary conditions
+              if (x_fs < xc_state) {x_fs = xc_state;}
+              if (x_fs > xmax_state) {x_fs = xmax_state;}
+              if (theta_fs < 0) {theta_fs == 0;}
+              if (theta_fs > thetamax_state) {theta_fs = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fs_low = (int) floor(x_fs);
+              int x_fs_high = x_fs + 1;
+              double x_fs_h = (double) x_fs_high;
+              int theta_fs_low = (int) floor(theta_fs);
+              int theta_fs_high = (int) theta_fs_low + 1;
+              double theta_fs_h = (double) theta_fs_high;
+              
+              double qx_fs = x_fs_h - x_fs;
+              double qtheta_fs = theta_fs_h - theta_fs;
+              
+              //Adjust to represent indices rather than state
+              x_fs = x_fs - 1;
+              theta_fs = theta_fs - 1;
+              
+              W_fs = qtheta_fs_h*(qx_fs*W_theta_low(x_fs_low,t+1) +
+              (1 - qx_fs)*W_theta_low(x_fs_high,t+1)) +
+              qtheta_fs_l*(qx_fs*W_theta_high(x_fs_low,t+1) +
+              (1 - qx_fs)*W_theta_high(x_fs_high,t+1));
+              
+              
+              
+              //Boundary conditions
+              if (x_fds < xc_state) {x_fds = xc_state;}
+              if (x_fds > xmax_state) {x_fds = xmax_state;}
+              if (theta_fds < 0) {theta_fds == 0;}
+              if (theta_fds > thetamax_state) {theta_fds = thetamax_state;}
+              
+              //Fitness Interpolation
+              int x_fds_low = (int) floor(x_fds);
+              int x_fds_high = x_fds + 1;
+              double x_fds_h = (double) x_fds_high;
+              int theta_fds_low = (int) floor(theta_fds);
+              int theta_fds_high = (int) theta_fds_low + 1;
+              double theta_fds_h = (double) theta_fds_high;
+              
+              double qx_fds = x_fds_h - x_fds;
+              double qtheta_fds = theta_fds_h - theta_fds;
+              
+              //Adjust to represent indices rather than state
+              x_fds = x_fds - 1;
+              theta_fds = theta_fds - 1;
+              
+              W_fds = qtheta_fds_h*(qx_fds*W_theta_low(x_fds_low,t+1) +
+              (1 - qx_fds)*W_theta_low(x_fds_high,t+1)) +
+              qtheta_fds_l*(qx_fds*W_theta_high(x_fds_low,t+1) +
+              (1 - qx_fds)*W_theta_high(x_fds_high,t+1));
               
               //Boundary Conditions
               
@@ -215,13 +418,16 @@ List SDP_beq_func(
               
               
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
-              NumericVector fitness_f(5);
-              temp_v(0) = W_fdsdc;
-              temp_v(1) = W_fdsc;
-              temp_v(2) = W_fsdc;
-              temp_v(3) = W_fsc;
-              temp_v(4) = W_f;
-              int max_dec_f = which_max(fitness_f);
+              NumericVector fitness_f(6);
+              fitness_f(0) = W_fdsdc;
+              fitness_f(1) = W_fdsc;
+              fitness_f(2) = W_fsdc;
+              fitness_f(3) = W_fsc;
+              fitness_f(4) = W_fs;
+              fitness_f(5) = W_fds;
+              
+              max_dec_f(k) = which_max(fitness_f);
+              W_max_f(k) = fitness_f(max_dec_f);
               
               
             } //End k
