@@ -115,13 +115,13 @@ List SDP_beq_func(
             ////Don't find food, don't eat cache
             ////
             double x_dfdc = x_state - a*pow(Mc,b);
-            double theta_dfdc = theta_state;
+            double theta_dfdc = theta_state - Y_decay;
             ////
             
             ////Don't find food, eat cache
             ////
             double x_dfc = x_state - a*pow(Mc,b);
-            double theta_dfc = theta_state - Y_theta;
+            double theta_dfc = theta_state - Y_theta - Y_decay;
             ////
             
             //Boundary conditions
@@ -142,12 +142,14 @@ List SDP_beq_func(
             double qx_dfdc = x_dfdc_h - x_dfdc;
             double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
             //Adjust to represent indices rather than state
-            x_dfdc = x_dfdc - 1;
-            theta_dfdc = theta_dfdc - 1;
+            x_dfdc_low = x_dfdc_low - 1;
+            x_dfdc_high = x_dfdc_high - 1;
+            theta_dfdc_low = theta_dfdc_low - 1;
+            theta_dfdc_low = theta_dfdc_low - 1;
             
             //Define fitness
-            W_theta_low = W_theta(theta_dfdc_low);
-            W_theta_high= W_theta(theta_dfdc_high);
+            NumericMatrix W_theta_low = W_theta(theta_dfdc_low);
+            NumericMatrix W_theta_high= W_theta(theta_dfdc_high);
             
             double W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_low(x_dfdc_high,t+1)) + 
             (1 - qtheta_dfdc)*(qx_dfdc*W_theta_high(x_dfdc_low,t+1) +  (1 - qx_dfdc)*W_theta_high(x_dfdc_high,t+1));
@@ -171,8 +173,14 @@ List SDP_beq_func(
             double qtheta_dfc = theta_dfc_h - theta_dfc;
             
             //Adjust to represent indices rather than state
-            x_dfc = x_dfc - 1;
-            theta_dfc = theta_dfc - 1;
+            x_dfc_low = x_dfc_low - 1;
+            x_dfc_high = x_dfc_high - 1;
+            theta_dfc_low = theta_dfc_low - 1;
+            theta_dfc_high = theta_dfc_high - 1;
+            
+            //Define fitness
+            NumericMatrix W_theta_low = W_theta(theta_dfc_low);
+            NumericMatrix W_theta_high= W_theta(theta_dfc_high);
             
             double W_dfc = qtheta_dfc*(qx_dfc*W_theta_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_low(x_dfc_high,t+1)) +
             (1 - qtheta_dfc)*(qx_dfc*W_theta_high(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_high(x_dfc_high,t+1));
@@ -180,12 +188,12 @@ List SDP_beq_func(
             
             //Which maximizes fitness over dfdc and dfc?
             NumericVector fitness_df(2);
-            temp_v(0) = W_dfdc;
-            temp_v(1) = W_dfc;
+            fitness_df(0) = W_dfdc;
+            fitness_df(1) = W_dfc;
             int max_dec_df = which_max(fitness_df);
             
-            //Weighted by the probability of k=0
-            double W_max_df = pk(0,j)*fitness_df(max_dec_df);
+            //Weighted by the probability of k=0 for food type j
+            double W_max_df = pkj(0)*fitness_df(max_dec_df);
             
             
             IntegerVector max_dec_f(kmax);
@@ -268,8 +276,14 @@ List SDP_beq_func(
               double qtheta_fdsdc = theta_fdsdc_h - theta_fdsdc;
               
               //Adjust to represent indices rather than state
-              x_fdsdc = x_fdsdc - 1;
-              theta_fdsdc = theta_fdsdc - 1;
+              x_fdsdc_low = x_fdsdc_low - 1;
+              x_fdsdc_high = x_fdsdc_high - 1;
+              theta_fdsdc_low = theta_fdsdc_low - 1;
+              theta_fdsdc_high = theta_fdsdc_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fdsdc_low);
+              NumericMatrix W_theta_high= W_theta(theta_fdsdc_high);
               
               double W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_low(x_fdsdc_high,t+1)) +
               (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_high(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_high(x_fdsdc_high,t+1));
@@ -293,8 +307,14 @@ List SDP_beq_func(
               double qtheta_fdsc = theta_fdsc_h - theta_fdsc;
               
               //Adjust to represent indices rather than state
-              x_fdsc = x_fdsc - 1;
-              theta_fdsc = theta_fdsc - 1;
+              x_fdsc_low = x_fdsc_low - 1;
+              x_fdsc_high = x_fdsc_high - 1;
+              theta_fdsc_low = theta_fdsc_low - 1;
+              theta_fdsc_high = theta_fdsc_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fdsc_low);
+              NumericMatrix W_theta_high= W_theta(theta_fdsc_high);
               
               double W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_low(x_fdsc_high,t+1)) +
               (1 - qtheta_fdsc)*(qx_fdsc*W_theta_high(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_high(x_fdsc_high,t+1));
@@ -318,8 +338,14 @@ List SDP_beq_func(
               double qtheta_fsdc = theta_fsdc_h - theta_fsdc;
               
               //Adjust to represent indices rather than state
-              x_fsdc = x_fsdc - 1;
-              theta_fsdc = theta_fsdc - 1;
+              x_fsdc_low = x_fsdc_low - 1;
+              x_fsdc_high = x_fsdc_high - 1;
+              theta_fsdc_low = theta_fsdc_low - 1;
+              theta_fsdc_high = theta_fsdc_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fsdc_low);
+              NumericMatrix W_theta_high= W_theta(theta_fsdc_high);
               
               double W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_low(x_fsdc_high,t+1)) +
               (1 - qtheta_fsdc)*(qx_fsdc*W_theta_high(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_high(x_fsdc_high,t+1));
@@ -343,8 +369,14 @@ List SDP_beq_func(
               double qtheta_fsc = theta_fsc_h - theta_fsc;
               
               //Adjust to represent indices rather than state
-              x_fsc = x_fsc - 1;
-              theta_fsc = theta_fsc - 1;
+              x_fsc_low = x_fsc_low - 1;
+              x_fsc_high = x_fsc_high - 1;
+              theta_fsc_low = theta_fsc_low - 1;
+              theta_fsc_high = theta_fsc_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fsc_low);
+              NumericMatrix W_theta_high= W_theta(theta_fsc_high);
               
               double W_fsc = qtheta_fsc*(qx_fsc*W_theta_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_low(x_fsc_high,t+1)) +
               (1-qtheta_fsc)*(qx_fsc*W_theta_high(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_high(x_fsc_high,t+1));
@@ -368,8 +400,14 @@ List SDP_beq_func(
               double qtheta_fs = theta_fs_h - theta_fs;
               
               //Adjust to represent indices rather than state
-              x_fs = x_fs - 1;
-              theta_fs = theta_fs - 1;
+              x_fs_low = x_fs_low - 1;
+              x_fs_high = x_fs_high - 1;
+              theta_fs_low = theta_fs_low - 1;
+              theta_fs_high = theta_fs_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fs_low);
+              NumericMatrix W_theta_high= W_theta(theta_fs_high);
               
               double W_fs = qtheta_fs*(qx_fs*W_theta_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_low(x_fs_high,t+1)) +
               (1 - qtheta_fs)*(qx_fs*W_theta_high(x_fs_low,t+1) + (1 - qx_fs)*W_theta_high(x_fs_high,t+1));
@@ -393,8 +431,14 @@ List SDP_beq_func(
               double qtheta_fds = theta_fds_h - theta_fds;
               
               //Adjust to represent indices rather than state
-              x_fds = x_fds - 1;
-              theta_fds = theta_fds - 1;
+              x_fds_low = x_fds_low - 1;
+              x_fds_high = x_fds_high - 1;
+              theta_fds_low = theta_fds_low - 1;
+              theta_fds_high = theta_fds_high - 1;
+              
+              //Define fitness
+              NumericMatrix W_theta_low = W_theta(theta_fds_low);
+              NumericMatrix W_theta_high= W_theta(theta_fds_high);
               
               double W_fds = qtheta_fds*(qx_fds*W_theta_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_low(x_fds_high,t+1)) +
               (1 - qtheta_fds)*(qx_fds*W_theta_high(x_fds_low,t+1) + (1 - qx_fds)*W_theta_high(x_fds_high,t+1));
@@ -409,10 +453,11 @@ List SDP_beq_func(
               fitness_f(4) = W_fs;
               fitness_f(5) = W_fds;
               
+              //Find the maximum
               max_dec_f(k) = which_max(fitness_f);
               
               //Fitness value weighted by the probability of k
-              W_max_f(k) = pk(k,j)*fitness_f(max_dec_f);
+              W_max_f(k) = pkj(k)*fitness_f(max_dec_f);
               
               
             } //End k
@@ -428,17 +473,18 @@ List SDP_beq_func(
           //Find maximum value over j
           int maxvalue = which_max(value);
           
-          
+          //Update fitness matrix
+          W_theta(theta)()
           
         } //End x
         
         
       } //End t iterations
       
-        
+      
     } //End theta iterations
     
-
+    
     //List Cout(5);
     return W_theta;
   }
