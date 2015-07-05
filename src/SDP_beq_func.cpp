@@ -17,6 +17,9 @@ List SDP_beq_func(
   IntegerVector seed
   ) {
     
+    //Maybe build this in later on.
+    //seed: you can only store if the food is a seed...
+    
     
     //Define state variable max's and min's
     //'State' refers to the value used in the calculation...
@@ -28,7 +31,7 @@ List SDP_beq_func(
     int xmax = (int) floor(xmax_state);
     double xc_state = 0.5*xmax_state;
     int xc = (int) floor(xc_state);
-    //Stomach capacity
+    //Stomach/cheek capacity
     double xs = 0.10*xmax_state;
     
     double thetamax_state = 500;
@@ -108,7 +111,7 @@ List SDP_beq_func(
             //Define Y_theta
             NumericVector temp_v(2); temp_v(0)=theta_state; temp_v(1)=xs;
             int minvalue = which_min(temp_v);
-            double Y_theta = temp_v(minvalue);
+            double Y_theta = temp_v(minvalue); //What you can gain from cache
             
             //The case of k=0    
             
@@ -216,7 +219,7 @@ List SDP_beq_func(
               temp_v(0) = k_state*gainj; temp_v(1)=xs;
               int minvalue = which_min(temp_v);
               double Y_k = temp_v(minvalue);
-              double Y_remainder = k_state*gainj - Y_k;
+              double Y_remainder = (k_state*gainj) - Y_k;
               if (Y_remainder < 0) {Y_remainder = 0;}
               
               //Define Y_remain
