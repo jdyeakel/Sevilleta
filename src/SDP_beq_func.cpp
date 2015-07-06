@@ -12,6 +12,7 @@ List SDP_beq_func(
   double Mc,
   double a,
   double b,
+  int theta_max,
   int tmax,
   NumericMatrix pk,
   NumericVector gain,
@@ -37,13 +38,13 @@ List SDP_beq_func(
     double xs = 0.10*xmax_state;
     int num_x = xmax-xc;
 
-    double thetamax_state = 500;
+    double thetamax_state = theta_max;
     int thetamax = (int) thetamax_state;
     double Y_decay = 5;
 
     //Food qualities
     int num_res = gain.size();
-    int maxk = pk.size(1);
+    int maxk = pk.size(0);
 
 
 
@@ -211,7 +212,7 @@ List SDP_beq_func(
             fitness_df(0) = W_dfdc;
             fitness_df(1) = W_dfc;
             int max_dec_df = which_max(fitness_df);
-            dec(0,j) = max_dec_df;
+            dec(0,j) = max_dec_df + 1;
             //Weighted by the probability of k=0 for food type j
             double W_max_df = pkj(0)*fitness_df(max_dec_df);
 
@@ -477,7 +478,7 @@ List SDP_beq_func(
               //Find the maximum
               max_dec_f(k) = which_max(fitness_f);
               //Saving this for later
-              dec(k,j) = max_dec_f(k);
+              dec(k,j) = max_dec_f(k) + 3;
 
               //Fitness value weighted by the probability of k
               W_max_f(k) = pkj(k)*fitness_f(max_dec_f(k));
