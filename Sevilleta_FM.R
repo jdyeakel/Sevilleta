@@ -19,15 +19,17 @@ for (j in 1:num_res) {
 }
 
 #Resource gain
-
+gain <- c(1,2,3,4,5)
 #Resource cost
-
+cost <- c(1,2,3,4,5)
 
 #Run SDP
 Cout <- SDP_beq_func(
-  Mc<-5,
-  tmax<-10,
-  pk<-pk
-  gain<-
-  cost<-
-  seed<-)
+  Mc < -5,
+  a <- 0.1,
+  b <- 0.75,
+  tmax <- 10,
+  pk <- pk
+  gain <- gain,
+  cost <- cost
+)

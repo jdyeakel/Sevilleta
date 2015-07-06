@@ -10,6 +10,8 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 List SDP_beq_func(
   double Mc,
+  double a,
+  double b,
   int tmax,
   NumericMatrix pk,
   NumericVector gain,
@@ -509,15 +511,17 @@ List SDP_beq_func(
 
         } //End x
 
+        //Only updating decision matrix because dec_x is a List
+        //within which is embedded dec(k,j)
         dec_t(t) = dec_x;
 
       } //End t iterations
 
       //Update fitness matrix
       W_theta(theta) = W_xt;
-
+      //Update the jstar matrix
       jstar_theta(theta) = jstar_xt;
-
+      //Update the decision matrix
       dec_theta(theta) = dec_t;
 
     } //End theta iterations
