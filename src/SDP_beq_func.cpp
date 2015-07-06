@@ -33,6 +33,7 @@ List SDP_beq_func(
     int xc = (int) floor(xc_state);
     //Stomach/cheek capacity
     double xs = 0.10*xmax_state;
+    int num_x = xmax-xc;
 
     double thetamax_state = 500;
     int thetamax = (int) thetamax_state;
@@ -74,19 +75,28 @@ List SDP_beq_func(
       jstar_theta(i) = jstar_xt;
     }
 
+    //Saving decision rules
+    List dec_theta(thetamax);
 
     //Begin backwards equation over theta
     for (int theta=0;theta<thetamax;theta++) {
 
+      //do not add +1 because it starts at zero
       double theta_state = (double) theta;
 
       NumericMatrix W_xt = W_theta(theta);
-      NumericMatrix istar_xt = istar_theta(theta);
+      NumericMatrix jstar_xt = jstar_theta(theta);
 
       IntegerMatrix dec_df(xmax,tmax-1);
 
+      //Saving decision rules
+      List dec_t(tmax-1);
+
       //Iterate backwards over t
       for (int t=(tmax-1); t --> 0;) {
+
+        //Saving decision values
+        List dec_x(xmax);
 
         //Itertate over x
         for (int x=xc;x<xmax;x++) {
@@ -94,8 +104,9 @@ List SDP_beq_func(
           double x_state = (double) x + 1;
 
           NumericVector value(num_res);
-          IntegerVector dec_df_j(num_res);
-          IntegerMatrix dec_f(kmax,num_res);
+
+          //Saving decision values
+          IntegerMatrix dec(kmax,num_res);
 
           //Iterate over potential foods j
           for(int j=0;j<num_res;j++) {
@@ -198,8 +209,7 @@ List SDP_beq_func(
             fitness_df(0) = W_dfdc;
             fitness_df(1) = W_dfc;
             int max_dec_df = which_max(fitness_df);
-            dec_df_j(j) = max_dec_df;
-
+            dec(0,j) = max_dec_df;
             //Weighted by the probability of k=0 for food type j
             double W_max_df = pkj(0)*fitness_df(max_dec_df);
 
@@ -464,7 +474,8 @@ List SDP_beq_func(
 
               //Find the maximum
               max_dec_f(k) = which_max(fitness_f);
-              dec_f(k,j) = max_dec_f(k);
+              //Saving this for later
+              dec(k,j) = max_dec_f(k);
 
               //Fitness value weighted by the probability of k
               W_max_f(k) = pkj(k)*fitness_f(max_dec_f(k));
@@ -485,25 +496,36 @@ List SDP_beq_func(
 
           //Find maximum value over j
           int maxvalue = which_max(value);
-          //Store jstar
-          jstar_theta(theta)(x,t) = maxvalue;
-
-          //The maximizing decision for the maximizing food if k=0
-          dec_df(x,t) = dec_df_j(maxvalue);
-          //MORE COMPLICATED FOR K>0... think about this...
 
           //Update fitness matrix
-          W_theta(theta)(x,t) = value(maxvalue);
+          W_xt(x,t) = value(maxvalue);
+
+          //Store jstar
+          jstar_xt(x,t) = maxvalue;
+
+          //The maximizing decision for the maximizing food if k=0
+          dec_x(x) = dec;
+
 
         } //End x
 
+        dec_t(t) = dec_x;
 
       } //End t iterations
 
+      //Update fitness matrix
+      W_theta(theta) = W_xt;
+
+      jstar_theta(theta) = jstar_xt;
+
+      dec_theta(theta) = dec_t;
 
     } //End theta iterations
 
 
-    //List Cout(5);
-    return W_theta;
+    List Cout(3);
+    Cout(0) = W_theta;
+    Cout(1) = jstar_theta;
+    Cout(2) = dec_theta;
+    return Cout;
   }
