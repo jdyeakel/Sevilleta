@@ -15,7 +15,7 @@ num_res <- 5
 #Probability of finding k resources of food type j
 m <- c(4,3,5,2,1)
 nu <- c(1,1,1,1,1)
-max_enc <- 50
+max_enc <- 10
 pk <- matrix(0,(max_enc+1),num_res)
 for (j in 1:num_res) {
   for (k in 1:(max_enc+1)) {
@@ -30,10 +30,14 @@ gain <- c(2,3,1,3,5)
 #Run SDP
 Cout <- SDP_beq_func(
   Mc <- 5,
-  a <- 10,
+  a <- 4,
   b <- -0.25,
-  theta_max <- 10,
-  tmax <- 10,
+  theta_max <- 100,
+  tmax <- 60,
   pk <- pk,
   gain <- gain
 )
+
+W <- Cout[[1]]
+jstar <- Cout[[2]]
+dec <- Cout[[3]]

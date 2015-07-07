@@ -12,7 +12,7 @@ List SDP_beq_func(
   double Mc,
   double a,
   double b,
-  double theta_max,
+  int thetamax,
   int tmax,
   NumericMatrix pk,
   NumericVector gain) {
@@ -36,15 +36,21 @@ List SDP_beq_func(
     //Stomach/cheek capacity
     double xs = 0.10*xmax_state;
 
-    double thetamax_state = theta_max;
-    int thetamax = (int) thetamax_state;
+
+    //If thetamax is 50, thetamax_state is 49...
+    //The vector is 50 units long... but ranges from theta=0 to theta=49.
+    //So in theta[50], your chache is just 49 units.
+    double thetamax_state = thetamax - 1;
+
     double Y_decay = 5;
 
     //Food qualities
     int num_res = gain.size();
     int kmax = pk.nrow();
 
-
+    Rcout << "xmax " << xmax << std::endl;
+    Rcout << "xc " << xc << std::endl;
+    Rcout << "xs " << xs << std::endl;
 
     //Build terminal fitness function
     //It will be important to test result sensitivities to this function...
@@ -99,6 +105,7 @@ List SDP_beq_func(
 
       //Saving decision rules
       List dec_t(tmax-1);
+
 
       //Iterate backwards over t
       for (int t=(tmax-1); t --> 0;) {
@@ -178,12 +185,17 @@ List SDP_beq_func(
             // Rcout << "theta_dfdc_high = " << theta_dfdc_high << std::endl;
 
             //Define fitness
-            NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
-            NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
-
-            double W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1)) +
-            (1 - qtheta_dfdc)*(qx_dfdc*W_theta_dfdc_high(x_dfdc_low,t+1) +  (1 - qx_dfdc)*W_theta_dfdc_high(x_dfdc_high,t+1));
-
+            double W_dfdc;
+            //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+            if (theta_dfdc == thetamax_state) {
+              NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
+              W_dfdc = qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1);
+            } else {
+              NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
+              NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
+              W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1)) +
+              (1 - qtheta_dfdc)*(qx_dfdc*W_theta_dfdc_high(x_dfdc_low,t+1) +  (1 - qx_dfdc)*W_theta_dfdc_high(x_dfdc_high,t+1));
+            }
 
             //Boundary conditions
             if (x_dfc < xc_state) {x_dfc = xc_state;}
@@ -209,11 +221,17 @@ List SDP_beq_func(
             // theta_dfc_high = theta_dfc_high - 1;
 
             //Define fitness
-            NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
-            NumericMatrix W_theta_dfc_high = W_theta(theta_dfc_high);
-
-            double W_dfc = qtheta_dfc*(qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1)) +
-            (1 - qtheta_dfc)*(qx_dfc*W_theta_dfc_high(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_high(x_dfc_high,t+1));
+            //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+            double W_dfc;
+            if (theta_dfc == thetamax_state) {
+              NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
+              W_dfc = qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1);
+            } else {
+              NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
+              NumericMatrix W_theta_dfc_high = W_theta(theta_dfc_high);
+              W_dfc = qtheta_dfc*(qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1)) +
+              (1 - qtheta_dfc)*(qx_dfc*W_theta_dfc_high(x_dfc_low,t+1) +  (1 - qx_dfc)*W_theta_dfc_high(x_dfc_high,t+1));
+            }
 
 
             //Which maximizes fitness over dfdc and dfc?
@@ -228,6 +246,7 @@ List SDP_beq_func(
 
             IntegerVector max_dec_f(kmax);
             NumericVector W_max_f(kmax);
+
 
 
             //Iterate over nonzero values of k
@@ -313,11 +332,17 @@ List SDP_beq_func(
               // theta_fdsdc_high = theta_fdsdc_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
-              NumericMatrix W_theta_fdsdc_high = W_theta(theta_fdsdc_high);
-
-              double W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1)) +
-              (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_fdsdc_high(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_high(x_fdsdc_high,t+1));
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fdsdc;
+              if (theta_fdsdc == thetamax_state) {
+                NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
+                W_fdsdc = qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1);
+              } else {
+                NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
+                NumericMatrix W_theta_fdsdc_high = W_theta(theta_fdsdc_high);
+                W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1)) +
+                (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_fdsdc_high(x_fdsdc_low,t+1) +  (1 - qx_fdsdc)*W_theta_fdsdc_high(x_fdsdc_high,t+1));
+              }
 
 
               //Boundary conditions
@@ -344,12 +369,17 @@ List SDP_beq_func(
               // theta_fdsc_high = theta_fdsc_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
-              NumericMatrix W_theta_fdsc_high= W_theta(theta_fdsc_high);
-
-              double W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1)) +
-              (1 - qtheta_fdsc)*(qx_fdsc*W_theta_fdsc_high(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_high(x_fdsc_high,t+1));
-
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fdsc;
+              if (theta_fdsc == thetamax_state) {
+                NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
+                W_fdsc = qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1);
+              } else {
+                NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
+                NumericMatrix W_theta_fdsc_high= W_theta(theta_fdsc_high);
+                W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1)) +
+                (1 - qtheta_fdsc)*(qx_fdsc*W_theta_fdsc_high(x_fdsc_low,t+1) +  (1 - qx_fdsc)*W_theta_fdsc_high(x_fdsc_high,t+1));
+              }
 
               //Boundary conditions
               if (x_fsdc < xc_state) {x_fsdc = xc_state;}
@@ -375,12 +405,17 @@ List SDP_beq_func(
               // theta_fsdc_high = theta_fsdc_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
-              NumericMatrix W_theta_fsdc_high= W_theta(theta_fsdc_high);
-
-              double W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1)) +
-              (1 - qtheta_fsdc)*(qx_fsdc*W_theta_fsdc_high(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_high(x_fsdc_high,t+1));
-
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fsdc;
+              if (theta_fsdc == thetamax_state) {
+                NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
+                W_fsdc = qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1);
+              } else {
+                NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
+                NumericMatrix W_theta_fsdc_high = W_theta(theta_fsdc_high);
+                W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1)) +
+                (1 - qtheta_fsdc)*(qx_fsdc*W_theta_fsdc_high(x_fsdc_low,t+1) +  (1 - qx_fsdc)*W_theta_fsdc_high(x_fsdc_high,t+1));
+              }
 
               //Boundary conditions
               if (x_fsc < xc_state) {x_fsc = xc_state;}
@@ -406,11 +441,17 @@ List SDP_beq_func(
               // theta_fsc_high = theta_fsc_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
-              NumericMatrix W_theta_fsc_high= W_theta(theta_fsc_high);
-
-              double W_fsc = qtheta_fsc*(qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1)) +
-              (1-qtheta_fsc)*(qx_fsc*W_theta_fsc_high(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_high(x_fsc_high,t+1));
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fsc;
+              if (theta_fsc == thetamax_state) {
+                NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
+                W_fsc = qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1);
+              } else {
+                NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
+                NumericMatrix W_theta_fsc_high = W_theta(theta_fsc_high);
+                W_fsc = qtheta_fsc*(qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1)) +
+                (1 - qtheta_fsc)*(qx_fsc*W_theta_fsc_high(x_fsc_low,t+1) +  (1 - qx_fsc)*W_theta_fsc_high(x_fsc_high,t+1));
+              }
 
 
               //Boundary conditions
@@ -437,11 +478,17 @@ List SDP_beq_func(
               // theta_fs_high = theta_fs_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
-              NumericMatrix W_theta_fs_high= W_theta(theta_fs_high);
-
-              double W_fs = qtheta_fs*(qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1)) +
-              (1 - qtheta_fs)*(qx_fs*W_theta_fs_high(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_high(x_fs_high,t+1));
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fs;
+              if (theta_fs == thetamax_state) {
+                NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
+                W_fs = qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1);
+              } else {
+                NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
+                NumericMatrix W_theta_fs_high= W_theta(theta_fs_high);
+                W_fs = qtheta_fs*(qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1)) +
+                (1 - qtheta_fs)*(qx_fs*W_theta_fs_high(x_fs_low,t+1) +  (1 - qx_fs)*W_theta_fs_high(x_fs_high,t+1));
+              }
 
 
               //Boundary conditions
@@ -468,11 +515,17 @@ List SDP_beq_func(
               // theta_fds_high = theta_fds_high - 1;
 
               //Define fitness
-              NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
-              NumericMatrix W_theta_fds_high= W_theta(theta_fds_high);
-
-              double W_fds = qtheta_fds*(qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1)) +
-              (1 - qtheta_fds)*(qx_fds*W_theta_fds_high(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_high(x_fds_high,t+1));
+              //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
+              double W_fds;
+              if (theta_fds == thetamax_state) {
+                NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
+                W_fds = qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1);
+              } else {
+                NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
+                NumericMatrix W_theta_fds_high= W_theta(theta_fds_high);
+                W_fds = qtheta_fds*(qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1)) +
+                (1 - qtheta_fds)*(qx_fds*W_theta_fds_high(x_fds_low,t+1) +  (1 - qx_fds)*W_theta_fds_high(x_fds_high,t+1));
+              }
 
 
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
@@ -503,6 +556,8 @@ List SDP_beq_func(
 
           } //End j
 
+
+
           //Find maximum value over j
           int maxvalue = which_max(value);
 
@@ -510,7 +565,7 @@ List SDP_beq_func(
           W_xt(x,t) = value(maxvalue);
 
           //Store jstar
-          jstar_xt(x,t) = maxvalue;
+          jstar_xt(x,t) = maxvalue + 1; //+1 so that the output reflects resources 1:5
 
           //The maximizing decision for the maximizing food if k=0
           dec_x(x) = dec;
