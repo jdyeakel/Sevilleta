@@ -46,7 +46,7 @@ dec <- Cout[[3]]
 
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-theta <- 100
+theta <- 50
 xx <- jstar[[theta]]
 pal.m <- as.character(xx); 
 pal.m[which(pal.m == "0")] = "white"; pal.m[which(pal.m == "1")] = pal[1]; pal.m[which(pal.m == "2")] = pal[2]; 
