@@ -1,5 +1,6 @@
 library(Rcpp)
 library(plotrix)
+library(RColorBrewer)
 sourceCpp("src/SDP_beq_func.cpp")
 
 
@@ -34,7 +35,7 @@ Cout <- SDP_beq_func(
   a <- 4,
   b <- -0.25,
   theta_max <- 100,
-  tmax <- 200,
+  tmax <- 100,
   pk <- pk,
   gain <- gain
 )
@@ -43,9 +44,15 @@ W <- Cout[[1]]
 jstar <- Cout[[2]]
 dec <- Cout[[3]]
 
-xx <- jstar[[100]]
+pal <- brewer.pal(5,"Set1")
+resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
+theta <- 100
+xx <- jstar[[theta]]
+pal.m <- as.character(xx); 
+pal.m[which(pal.m == "0")] = "white"; pal.m[which(pal.m == "1")] = pal[1]; pal.m[which(pal.m == "2")] = pal[2]; 
+pal.m[which(pal.m == "3")] = pal[3]; pal.m[which(pal.m == "4")] = pal[4]; pal.m[which(pal.m == "5")] = pal[5]
 lbs <- unique(as.numeric(xx))
-par(mar=c(3,3,1,10))
-color2D.matplot(xx,extremes=lbs+1, border=NA, axes=TRUE, xlab="", ylab="",main="")
-legend(tmax,50,legend=as.character(lbs+1),pch=22,pt.bg=lbs+1,xpd=TRUE, bty="n")
+par(mar=c(5,5,2,10))
+color2D.matplot(xx,extremes=lbs+1, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta),cellcolors = pal.m)
+legend(tmax,50,legend=resources[sort(lbs)+1],pch=22,pt.bg=c("white",pal),xpd=TRUE, bty="n")
 
