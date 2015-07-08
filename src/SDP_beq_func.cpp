@@ -42,7 +42,7 @@ List SDP_beq_func(
     //So in theta[50], your chache is just 49 units.
     double thetamax_state = thetamax - 1;
 
-    double Y_decay = 5;
+    double Y_decay = 2;
 
     //Food qualities
     int num_res = gain.size();
@@ -59,7 +59,9 @@ List SDP_beq_func(
       for (int j=0;j<thetamax;j++) {
         double x_state = (double) i+1;
         double theta_state = (double) j+1;
-        Wterm(i,j) = 0.5*(2 - (xc_state/x_state) - (1/((0.01*theta_state)+1)));
+        //Wterm(i,j) = 0.5*(2 - (xc_state/x_state) - (1/((0.01*theta_state)+1)));
+        //Appears to work better than the above terminal time function...
+        Wterm(i,j) = 0.5*(2 - (xc_state/x_state) - (1/(theta_state+1)));
       }
     }
     double Wterm_max = Wterm(xmax-1,thetamax-1);
@@ -157,7 +159,7 @@ List SDP_beq_func(
 
             ////Don't find food, eat cache
             //// DFC
-            double x_dfc = x_state - a*pow(Mc,b);
+            double x_dfc = x_state - a*pow(Mc,b) + Y_theta;
             double theta_dfc = theta_state - Y_theta - Y_decay;
             ////
             //
@@ -258,13 +260,22 @@ List SDP_beq_func(
 
 
             //Which maximizes fitness over dfdc and dfc?
-            NumericVector fitness_df(2);
-            fitness_df(0) = W_dfdc;
-            fitness_df(1) = W_dfc;
-            int max_dec_df = which_max(fitness_df);
-            dec(0,j) = max_dec_df + 1;
+            //NumericVector fitness_df(1);
+            //fitness_df(0) = W_dfdc;
+            //fitness_df(1) = W_dfc;
+            double fitness_df = W_dfc;
+
+            // if (fitness_df(0) == fitness_df(1)) {
+            //   Rcout << "The df values are the same!" << theta << std::endl;
+            // }
+
+
+            //int max_dec_df = which_max(fitness_df);
+            //dec(0,j) = max_dec_df + 1;
+            dec(0,j) = 1;
             //Weighted by the probability of k=0 for food type j
-            double W_max_df = pkj(0)*fitness_df(max_dec_df);
+            //double W_max_df = pkj(0)*fitness_df(max_dec_df);
+            double W_max_df = pkj(0)*fitness_df;
 
 
             IntegerVector max_dec_f(kmax);
@@ -322,7 +333,7 @@ List SDP_beq_func(
               ////Find food, accept, store remainder
               //// FS
               double x_fs = x_state - a*pow(Mc,b) + Y_k;
-              double theta_fs = theta_state + Y_remain - Y_decay;
+              double theta_fs = theta_state - Y_decay; //+ Y_remain
               ////
 
               ////find food, accept, don't store remainder
@@ -612,16 +623,32 @@ List SDP_beq_func(
 
 
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
-              NumericVector fitness_f(6);
-              fitness_f(0) = W_fdsdc;
-              fitness_f(1) = W_fdsc;
-              fitness_f(2) = W_fsdc;
-              fitness_f(3) = W_fsc;
-              fitness_f(4) = W_fs;
-              fitness_f(5) = W_fds;
+              // NumericVector fitness_f(6);
+              // fitness_f(0) = W_fdsdc;
+              // fitness_f(1) = W_fdsc;
+              // fitness_f(2) = W_fsdc;
+              // fitness_f(3) = W_fsc;
+              // fitness_f(4) = W_fs;
+              // fitness_f(5) = W_fds;
+
+              //Alternate version... without FSDC and FDS
+              NumericVector fitness_f(2);
+              //fitness_f(0) = W_fdsdc;
+              //fitness_f(1) = W_fdsc;
+              fitness_f(0) = W_fsdc;  //Find, store
+              //fitness_f(3) = W_fsc;
+              fitness_f(1) = W_fs; //Find, eat
+              //fitness_f(5) = W_fds;
+
+              //Check for similarities
+              if (fitness_f(0) == fitness_f(1)) {
+                Rcout << "The f values are the same!" << x << std::endl;
+              }
+
 
               //Find the maximum
               max_dec_f(k) = which_max(fitness_f);
+
               //Saving this for later
               dec(k,j) = max_dec_f(k) + 3;
 

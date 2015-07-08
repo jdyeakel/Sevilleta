@@ -17,7 +17,7 @@ num_res <- 5
 #Probability of finding k resources of food type j
 m <- c(4,3,5,2,1)
 nu <- c(1,1,1,1,1)
-max_enc <- 30
+max_enc <- 5
 pk <- matrix(0,(max_enc+1),num_res)
 for (j in 1:num_res) {
   for (k in 1:(max_enc+1)) {
@@ -32,10 +32,10 @@ gain <- c(2,3,1,3,5)
 #Run SDP
 Cout <- SDP_beq_func(
   Mc <- 5,
-  a <- 4,
+  a <- 1,
   b <- -0.25,
-  theta_max <- 100,
-  tmax <- 100,
+  theta_max <- 50,
+  tmax <- 50,
   pk <- pk,
   gain <- gain
 )
@@ -46,13 +46,13 @@ dec <- Cout[[3]]
 
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-theta <- 50
-xx <- jstar[[theta]]
+theta <- 10
+xx <- jstar[[theta]] +1
 pal.m <- as.character(xx); 
-pal.m[which(pal.m == "0")] = "white"; pal.m[which(pal.m == "1")] = pal[1]; pal.m[which(pal.m == "2")] = pal[2]; 
-pal.m[which(pal.m == "3")] = pal[3]; pal.m[which(pal.m == "4")] = pal[4]; pal.m[which(pal.m == "5")] = pal[5]
+pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
+pal.m[which(pal.m == "4")] = pal[3]; pal.m[which(pal.m == "5")] = pal[4]; pal.m[which(pal.m == "6")] = pal[5]
 lbs <- unique(as.numeric(xx))
 par(mar=c(5,5,2,10))
-color2D.matplot(xx,extremes=lbs+1, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta),cellcolors = pal.m)
-legend(tmax,50,legend=resources[sort(lbs)+1],pch=22,pt.bg=c("white",pal),xpd=TRUE, bty="n")
+color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta-1),cellcolors = pal.m)
+legend(tmax,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[sort(lbs)],xpd=TRUE, bty="n")
 
