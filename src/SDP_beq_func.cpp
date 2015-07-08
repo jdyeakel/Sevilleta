@@ -116,6 +116,9 @@ List SDP_beq_func(
         //Itertate over x
         for (int x=xc;x<xmax;x++) {
 
+          //Add one so that we range through the minimal x_state (xc + 1)
+          //to the maximum x_state (xmax).
+          //Then it is assumed that xc results in mortality (0 fitness)
           double x_state = (double) x + 1;
 
           NumericVector value(num_res);

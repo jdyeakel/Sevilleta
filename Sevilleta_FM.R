@@ -1,4 +1,5 @@
 library(Rcpp)
+library(plotrix)
 sourceCpp("src/SDP_beq_func.cpp")
 
 
@@ -42,6 +43,9 @@ W <- Cout[[1]]
 jstar <- Cout[[2]]
 dec <- Cout[[3]]
 
-
-
+xx <- jstar[[100]]
+lbs <- unique(as.numeric(xx))
+par(mar=c(3,3,1,10))
+color2D.matplot(xx,extremes=lbs+1, border=NA, axes=TRUE, xlab="", ylab="",main="")
+legend(tmax,50,legend=as.character(lbs+1),pch=22,pt.bg=lbs+1,xpd=TRUE, bty="n")
 
