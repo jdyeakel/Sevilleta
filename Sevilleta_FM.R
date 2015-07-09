@@ -3,11 +3,12 @@ library(plotrix)
 library(RColorBrewer)
 #sourceCpp("src/SDP_beq_func.cpp")
 sourceCpp("src/SDP_beq_func_trim.cpp")
+source("R/timetotheta.R")
+
 
 #Sevilleta foraging model
 #Setup
 num_res <- 5
-
 # 1) C3 Veg
 # 2) C3 Seeds
 # 3) C4 Veg
@@ -17,7 +18,7 @@ num_res <- 5
 #Probability of finding k resources of food type j
 m <- c(4,3,5,2,1)
 nu <- c(1,1,1,1,1)
-max_enc <- 5
+max_enc <- 30
 pk <- matrix(0,(max_enc+1),num_res)
 for (j in 1:num_res) {
   for (k in 1:(max_enc+1)) {
@@ -43,10 +44,18 @@ Cout <- SDP_beq_func_trim(
 W <- Cout[[1]]
 jstar <- Cout[[2]]
 dec <- Cout[[3]]
+ttt <- timetotheta(W,jstar)
+W_xt <- ttt[[1]]; jstar_xt <- ttt[[2]]
+
+
+###########
+# PLOTTING
+###########
+
 
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-time <- 80
+time <- 50
 xx <- jstar[[time]] +1
 pal.m <- as.character(xx); 
 pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
@@ -55,4 +64,25 @@ lbs <- unique(as.numeric(xx))
 par(mar=c(5,5,2,10))
 color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Theta", ylab="Energetic Reserves",main=paste("Time = ",time),cellcolors = pal.m)
 legend(theta_max,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[sort(lbs)],xpd=TRUE, bty="n")
+
+
+## TTT Plots
+pal <- brewer.pal(5,"Set1")
+resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
+theta <- 100
+xx <- jstar_xt[[theta]] +1
+pal.m <- as.character(xx); 
+pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
+pal.m[which(pal.m == "4")] = pal[3]; pal.m[which(pal.m == "5")] = pal[4]; pal.m[which(pal.m == "6")] = pal[5]
+lbs <- unique(as.numeric(xx))
+par(mar=c(5,5,2,10))
+color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta-1),cellcolors = pal.m)
+legend(tmax,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[sort(lbs)],xpd=TRUE, bty="n")
+
+
+
+
+
+
+
 
