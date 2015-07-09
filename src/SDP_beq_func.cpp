@@ -165,9 +165,9 @@ List SDP_beq_func(
             //
             //Boundary conditions
             if (x_dfdc < xc_state) {x_dfdc = xc_state;}
-            if (x_dfdc > xmax_state) {x_dfdc = xmax_state;}
+            if (x_dfdc >= xmax_state) {x_dfdc = xmax_state-0.001;}
             if (theta_dfdc < 0) {theta_dfdc=0;}
-            if (theta_dfdc > thetamax_state) {theta_dfdc = thetamax_state;}
+            if (theta_dfdc >= thetamax_state) {theta_dfdc = thetamax_state-0.001;}
 
             //Fitness Interpolation
             int x_dfdc_low = (int) floor(x_dfdc);
@@ -192,31 +192,31 @@ List SDP_beq_func(
             //Define fitness
             double W_dfdc;
             //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
-            if ((x_dfdc == xmax_state) && (theta_dfdc == thetamax_state)) {
-              NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
-              W_dfdc = W_theta_dfdc_low(x_dfdc_low,t+1);
-            }
-            if ((x_dfdc < xmax_state) && (theta_dfdc == thetamax_state)) {
-              NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
-              W_dfdc = qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1);
-            }
-            if ((x_dfdc == xmax_state) && (theta_dfdc < thetamax_state)) {
-              NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
-              NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
-              W_dfdc = qtheta_dfdc*(W_theta_dfdc_low(x_dfdc_low,t+1)) + (1 - qtheta_dfdc)*(W_theta_dfdc_high(x_dfdc_low,t+1));
-            }
-            if ((x_dfdc < xmax_state) && (theta_dfdc < thetamax_state)) {
+            // if ((x_dfdc == xmax_state) && (theta_dfdc == thetamax_state)) {
+            //   NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
+            //   W_dfdc = W_theta_dfdc_low(x_dfdc_low,t+1);
+            // }
+            // if ((x_dfdc < xmax_state) && (theta_dfdc == thetamax_state)) {
+            //   NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
+            //   W_dfdc = qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1);
+            // }
+            // if ((x_dfdc == xmax_state) && (theta_dfdc < thetamax_state)) {
+            //   NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
+            //   NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
+            //   W_dfdc = qtheta_dfdc*(W_theta_dfdc_low(x_dfdc_low,t+1)) + (1 - qtheta_dfdc)*(W_theta_dfdc_high(x_dfdc_low,t+1));
+            // }
+            // if ((x_dfdc < xmax_state) && (theta_dfdc < thetamax_state)) {
               NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
               NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
               W_dfdc = qtheta_dfdc*(qx_dfdc*W_theta_dfdc_low(x_dfdc_low,t+1) + (1 - qx_dfdc)*W_theta_dfdc_low(x_dfdc_high,t+1)) +
               (1 - qtheta_dfdc)*(qx_dfdc*W_theta_dfdc_high(x_dfdc_low,t+1) +  (1 - qx_dfdc)*W_theta_dfdc_high(x_dfdc_high,t+1));
-            }
+            // }
 
             //Boundary conditions
             if (x_dfc < xc_state) {x_dfc = xc_state;}
-            if (x_dfc > xmax_state) {x_dfc = xmax_state;}
+            if (x_dfc >= xmax_state) {x_dfc = xmax_state-0.001;}
             if (theta_dfc < 0) {theta_dfc=0;}
-            if (theta_dfc > thetamax_state) {theta_dfc = thetamax_state;}
+            if (theta_dfc >= thetamax_state) {theta_dfc = thetamax_state-0.001;}
 
             //Fitness Interpolation
             int x_dfc_low = (int) floor(x_dfc);
@@ -238,25 +238,25 @@ List SDP_beq_func(
             //Define fitness
             //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
             double W_dfc;
-            if ((x_dfc == xmax_state) && (theta_dfc == thetamax_state)) {
-              NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
-              W_dfc = W_theta_dfc_low(x_dfc_low,t+1);
-            }
-            if ((x_dfc < xmax_state) && (theta_dfc == thetamax_state)) {
-              NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
-              W_dfc = qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1);
-            }
-            if ((x_dfc == xmax_state) && (theta_dfc < thetamax_state)) {
-              NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
-              NumericMatrix W_theta_dfc_high = W_theta(theta_dfc_high);
-              W_dfc = qtheta_dfc*(W_theta_dfc_low(x_dfc_low,t+1)) + (1 - qtheta_dfc)*(W_theta_dfc_high(x_dfc_low,t+1));
-            }
-            if ((x_dfc < xmax_state) && (theta_dfc < thetamax_state)) {
+            // if ((x_dfc == xmax_state) && (theta_dfc == thetamax_state)) {
+            //   NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
+            //   W_dfc = W_theta_dfc_low(x_dfc_low,t+1);
+            // }
+            // if ((x_dfc < xmax_state) && (theta_dfc == thetamax_state)) {
+            //   NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
+            //   W_dfc = qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1);
+            // }
+            // if ((x_dfc == xmax_state) && (theta_dfc < thetamax_state)) {
+            //   NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
+            //   NumericMatrix W_theta_dfc_high = W_theta(theta_dfc_high);
+            //   W_dfc = qtheta_dfc*(W_theta_dfc_low(x_dfc_low,t+1)) + (1 - qtheta_dfc)*(W_theta_dfc_high(x_dfc_low,t+1));
+            // }
+            // if ((x_dfc < xmax_state) && (theta_dfc < thetamax_state)) {
               NumericMatrix W_theta_dfc_low = W_theta(theta_dfc_low);
               NumericMatrix W_theta_dfc_high = W_theta(theta_dfc_high);
               W_dfc = qtheta_dfc*(qx_dfc*W_theta_dfc_low(x_dfc_low,t+1) + (1 - qx_dfc)*W_theta_dfc_low(x_dfc_high,t+1)) +
               (1 - qtheta_dfc)*(qx_dfc*W_theta_dfc_high(x_dfc_low,t+1) +  (1 - qx_dfc)*W_theta_dfc_high(x_dfc_high,t+1));
-            }
+            // }
 
 
             //Which maximizes fitness over dfdc and dfc?
@@ -344,9 +344,9 @@ List SDP_beq_func(
 
               //Boundary conditions
               if (x_fdsdc < xc_state) {x_fdsdc = xc_state;}
-              if (x_fdsdc > xmax_state) {x_fdsdc = xmax_state;}
+              if (x_fdsdc >= xmax_state) {x_fdsdc = xmax_state-0.001;}
               if (theta_fdsdc < 0) {theta_fdsdc=0;}
-              if (theta_fdsdc > thetamax_state) {theta_fdsdc = thetamax_state;}
+              if (theta_fdsdc >= thetamax_state) {theta_fdsdc = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fdsdc_low = (int) floor(x_fdsdc);
@@ -368,32 +368,32 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fdsdc;
-              if ((x_fdsdc == xmax_state) && (theta_fdsdc == thetamax_state)) {
-                NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
-                W_fdsdc = W_theta_fdsdc_low(x_fdsdc_low,t+1);
-              }
-              if ((x_fdsdc < xmax_state) && (theta_fdsdc == thetamax_state)) {
-                NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
-                W_fdsdc = qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1);
-              }
-              if ((x_fdsdc == xmax_state) && (theta_fdsdc < thetamax_state)) {
-                NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
-                NumericMatrix W_theta_fdsdc_high = W_theta(theta_fdsdc_high);
-                W_fdsdc = qtheta_fdsdc*(W_theta_fdsdc_low(x_fdsdc_low,t+1)) + (1 - qtheta_fdsdc)*(W_theta_fdsdc_high(x_fdsdc_low,t+1));
-              }
-              if ((x_fdsdc < xmax_state) && (theta_fdsdc < thetamax_state)) {
+              // if ((x_fdsdc == xmax_state) && (theta_fdsdc == thetamax_state)) {
+              //   NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
+              //   W_fdsdc = W_theta_fdsdc_low(x_fdsdc_low,t+1);
+              // }
+              // if ((x_fdsdc < xmax_state) && (theta_fdsdc == thetamax_state)) {
+              //   NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
+              //   W_fdsdc = qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1);
+              // }
+              // if ((x_fdsdc == xmax_state) && (theta_fdsdc < thetamax_state)) {
+              //   NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
+              //   NumericMatrix W_theta_fdsdc_high = W_theta(theta_fdsdc_high);
+              //   W_fdsdc = qtheta_fdsdc*(W_theta_fdsdc_low(x_fdsdc_low,t+1)) + (1 - qtheta_fdsdc)*(W_theta_fdsdc_high(x_fdsdc_low,t+1));
+              // }
+              // if ((x_fdsdc < xmax_state) && (theta_fdsdc < thetamax_state)) {
                 NumericMatrix W_theta_fdsdc_low = W_theta(theta_fdsdc_low);
                 NumericMatrix W_theta_fdsdc_high = W_theta(theta_fdsdc_high);
                 W_fdsdc = qtheta_fdsdc*(qx_fdsdc*W_theta_fdsdc_low(x_fdsdc_low,t+1) + (1 - qx_fdsdc)*W_theta_fdsdc_low(x_fdsdc_high,t+1)) +
                 (1 - qtheta_fdsdc)*(qx_fdsdc*W_theta_fdsdc_high(x_fdsdc_low,t+1) +  (1 - qx_fdsdc)*W_theta_fdsdc_high(x_fdsdc_high,t+1));
-              }
+              // }
 
 
               //Boundary conditions
               if (x_fdsc < xc_state) {x_fdsc = xc_state;}
-              if (x_fdsc > xmax_state) {x_fdsc = xmax_state;}
+              if (x_fdsc >= xmax_state) {x_fdsc = xmax_state-0.001;}
               if (theta_fdsc < 0) {theta_fdsc=0;}
-              if (theta_fdsc > thetamax_state) {theta_fdsc = thetamax_state;}
+              if (theta_fdsc >= thetamax_state) {theta_fdsc = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fdsc_low = (int) floor(x_fdsc);
@@ -415,31 +415,31 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fdsc;
-              if ((x_fdsc == xmax_state) && (theta_fdsc == thetamax_state)) {
-                NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
-                W_fdsc = W_theta_fdsc_low(x_fdsc_low,t+1);
-              }
-              if ((x_fdsc < xmax_state) && (theta_fdsc == thetamax_state)) {
-                NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
-                W_fdsc = qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1);
-              }
-              if ((x_fdsc == xmax_state) && (theta_fdsc < thetamax_state)) {
-                NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
-                NumericMatrix W_theta_fdsc_high = W_theta(theta_fdsc_high);
-                W_fdsc = qtheta_fdsc*(W_theta_fdsc_low(x_fdsc_low,t+1)) + (1 - qtheta_fdsc)*(W_theta_fdsc_high(x_fdsc_low,t+1));
-              }
-              if ((x_fdsc < xmax_state) && (theta_fdsc < thetamax_state)) {
+              // if ((x_fdsc == xmax_state) && (theta_fdsc == thetamax_state)) {
+              //   NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
+              //   W_fdsc = W_theta_fdsc_low(x_fdsc_low,t+1);
+              // }
+              // if ((x_fdsc < xmax_state) && (theta_fdsc == thetamax_state)) {
+              //   NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
+              //   W_fdsc = qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1);
+              // }
+              // if ((x_fdsc == xmax_state) && (theta_fdsc < thetamax_state)) {
+              //   NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
+              //   NumericMatrix W_theta_fdsc_high = W_theta(theta_fdsc_high);
+              //   W_fdsc = qtheta_fdsc*(W_theta_fdsc_low(x_fdsc_low,t+1)) + (1 - qtheta_fdsc)*(W_theta_fdsc_high(x_fdsc_low,t+1));
+              // }
+              // if ((x_fdsc < xmax_state) && (theta_fdsc < thetamax_state)) {
                 NumericMatrix W_theta_fdsc_low = W_theta(theta_fdsc_low);
                 NumericMatrix W_theta_fdsc_high = W_theta(theta_fdsc_high);
                 W_fdsc = qtheta_fdsc*(qx_fdsc*W_theta_fdsc_low(x_fdsc_low,t+1) + (1 - qx_fdsc)*W_theta_fdsc_low(x_fdsc_high,t+1)) +
                 (1 - qtheta_fdsc)*(qx_fdsc*W_theta_fdsc_high(x_fdsc_low,t+1) +  (1 - qx_fdsc)*W_theta_fdsc_high(x_fdsc_high,t+1));
-              }
+              // }
 
               //Boundary conditions
               if (x_fsdc < xc_state) {x_fsdc = xc_state;}
-              if (x_fsdc > xmax_state) {x_fsdc = xmax_state;}
+              if (x_fsdc >= xmax_state) {x_fsdc = xmax_state-0.001;}
               if (theta_fsdc < 0) {theta_fsdc=0;}
-              if (theta_fsdc > thetamax_state) {theta_fsdc = thetamax_state;}
+              if (theta_fsdc >= thetamax_state) {theta_fsdc = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fsdc_low = (int) floor(x_fsdc);
@@ -461,31 +461,31 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fsdc;
-              if ((x_fsdc == xmax_state) && (theta_fsdc == thetamax_state)) {
-                NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
-                W_fsdc = W_theta_fsdc_low(x_fsdc_low,t+1);
-              }
-              if ((x_fsdc < xmax_state) && (theta_fsdc == thetamax_state)) {
-                NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
-                W_fsdc = qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1);
-              }
-              if ((x_fsdc == xmax_state) && (theta_fsdc < thetamax_state)) {
-                NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
-                NumericMatrix W_theta_fsdc_high = W_theta(theta_fsdc_high);
-                W_fsdc = qtheta_fsdc*(W_theta_fsdc_low(x_fsdc_low,t+1)) + (1 - qtheta_fsdc)*(W_theta_fsdc_high(x_fsdc_low,t+1));
-              }
-              if ((x_fsdc < xmax_state) && (theta_fsdc < thetamax_state)) {
+              // if ((x_fsdc == xmax_state) && (theta_fsdc == thetamax_state)) {
+              //   NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
+              //   W_fsdc = W_theta_fsdc_low(x_fsdc_low,t+1);
+              // }
+              // if ((x_fsdc < xmax_state) && (theta_fsdc == thetamax_state)) {
+              //   NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
+              //   W_fsdc = qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1);
+              // }
+              // if ((x_fsdc == xmax_state) && (theta_fsdc < thetamax_state)) {
+              //   NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
+              //   NumericMatrix W_theta_fsdc_high = W_theta(theta_fsdc_high);
+              //   W_fsdc = qtheta_fsdc*(W_theta_fsdc_low(x_fsdc_low,t+1)) + (1 - qtheta_fsdc)*(W_theta_fsdc_high(x_fsdc_low,t+1));
+              // }
+              // if ((x_fsdc < xmax_state) && (theta_fsdc < thetamax_state)) {
                 NumericMatrix W_theta_fsdc_low = W_theta(theta_fsdc_low);
                 NumericMatrix W_theta_fsdc_high = W_theta(theta_fsdc_high);
                 W_fsdc = qtheta_fsdc*(qx_fsdc*W_theta_fsdc_low(x_fsdc_low,t+1) + (1 - qx_fsdc)*W_theta_fsdc_low(x_fsdc_high,t+1)) +
                 (1 - qtheta_fsdc)*(qx_fsdc*W_theta_fsdc_high(x_fsdc_low,t+1) +  (1 - qx_fsdc)*W_theta_fsdc_high(x_fsdc_high,t+1));
-              }
+              // }
 
               //Boundary conditions
               if (x_fsc < xc_state) {x_fsc = xc_state;}
-              if (x_fsc > xmax_state) {x_fsc = xmax_state;}
+              if (x_fsc >= xmax_state) {x_fsc = xmax_state-0.001;}
               if (theta_fsc < 0) {theta_fsc=0;}
-              if (theta_fsc > thetamax_state) {theta_fsc = thetamax_state;}
+              if (theta_fsc >= thetamax_state) {theta_fsc = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fsc_low = (int) floor(x_fsc);
@@ -507,32 +507,32 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fsc;
-              if ((x_fsc == xmax_state) && (theta_fsc == thetamax_state)) {
-                NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
-                W_fsc = W_theta_fsc_low(x_fsc_low,t+1);
-              }
-              if ((x_fsc < xmax_state) && (theta_fsc == thetamax_state)) {
-                NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
-                W_fsc = qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1);
-              }
-              if ((x_fsc == xmax_state) && (theta_fsc < thetamax_state)) {
-                NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
-                NumericMatrix W_theta_fsc_high = W_theta(theta_fsc_high);
-                W_fsc = qtheta_fsc*(W_theta_fsc_low(x_fsc_low,t+1)) + (1 - qtheta_fsc)*(W_theta_fsc_high(x_fsc_low,t+1));
-              }
-              if ((x_fsc < xmax_state) && (theta_fsc < thetamax_state)) {
+              // if ((x_fsc == xmax_state) && (theta_fsc == thetamax_state)) {
+              //   NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
+              //   W_fsc = W_theta_fsc_low(x_fsc_low,t+1);
+              // }
+              // if ((x_fsc < xmax_state) && (theta_fsc == thetamax_state)) {
+              //   NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
+              //   W_fsc = qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1);
+              // }
+              // if ((x_fsc == xmax_state) && (theta_fsc < thetamax_state)) {
+              //   NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
+              //   NumericMatrix W_theta_fsc_high = W_theta(theta_fsc_high);
+              //   W_fsc = qtheta_fsc*(W_theta_fsc_low(x_fsc_low,t+1)) + (1 - qtheta_fsc)*(W_theta_fsc_high(x_fsc_low,t+1));
+              // }
+              // if ((x_fsc < xmax_state) && (theta_fsc < thetamax_state)) {
                 NumericMatrix W_theta_fsc_low = W_theta(theta_fsc_low);
                 NumericMatrix W_theta_fsc_high = W_theta(theta_fsc_high);
                 W_fsc = qtheta_fsc*(qx_fsc*W_theta_fsc_low(x_fsc_low,t+1) + (1 - qx_fsc)*W_theta_fsc_low(x_fsc_high,t+1)) +
                 (1 - qtheta_fsc)*(qx_fsc*W_theta_fsc_high(x_fsc_low,t+1) +  (1 - qx_fsc)*W_theta_fsc_high(x_fsc_high,t+1));
-              }
+              // }
 
 
               //Boundary conditions
               if (x_fs < xc_state) {x_fs = xc_state;}
-              if (x_fs > xmax_state) {x_fs = xmax_state;}
+              if (x_fs >= xmax_state) {x_fs = xmax_state-0.001;}
               if (theta_fs < 0) {theta_fs=0;}
-              if (theta_fs > thetamax_state) {theta_fs = thetamax_state;}
+              if (theta_fs >= thetamax_state) {theta_fs = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fs_low = (int) floor(x_fs);
@@ -554,32 +554,32 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fs;
-              if ((x_fs == xmax_state) && (theta_fs == thetamax_state)) {
-                NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
-                W_fs = W_theta_fs_low(x_fs_low,t+1);
-              }
-              if ((x_fs < xmax_state) && (theta_fs == thetamax_state)) {
-                NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
-                W_fs = qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1);
-              }
-              if ((x_fs == xmax_state) && (theta_fs < thetamax_state)) {
-                NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
-                NumericMatrix W_theta_fs_high = W_theta(theta_fs_high);
-                W_fs = qtheta_fs*(W_theta_fs_low(x_fs_low,t+1)) + (1 - qtheta_fs)*(W_theta_fs_high(x_fs_low,t+1));
-              }
-              if ((x_fs < xmax_state) && (theta_fs < thetamax_state)) {
+              // if ((x_fs == xmax_state) && (theta_fs == thetamax_state)) {
+              //   NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
+              //   W_fs = W_theta_fs_low(x_fs_low,t+1);
+              // }
+              // if ((x_fs < xmax_state) && (theta_fs == thetamax_state)) {
+              //   NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
+              //   W_fs = qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1);
+              // }
+              // if ((x_fs == xmax_state) && (theta_fs < thetamax_state)) {
+              //   NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
+              //   NumericMatrix W_theta_fs_high = W_theta(theta_fs_high);
+              //   W_fs = qtheta_fs*(W_theta_fs_low(x_fs_low,t+1)) + (1 - qtheta_fs)*(W_theta_fs_high(x_fs_low,t+1));
+              // }
+              // if ((x_fs < xmax_state) && (theta_fs < thetamax_state)) {
                 NumericMatrix W_theta_fs_low = W_theta(theta_fs_low);
                 NumericMatrix W_theta_fs_high = W_theta(theta_fs_high);
                 W_fs = qtheta_fs*(qx_fs*W_theta_fs_low(x_fs_low,t+1) + (1 - qx_fs)*W_theta_fs_low(x_fs_high,t+1)) +
                 (1 - qtheta_fs)*(qx_fs*W_theta_fs_high(x_fs_low,t+1) +  (1 - qx_fs)*W_theta_fs_high(x_fs_high,t+1));
-              }
+              // }
 
 
               //Boundary conditions
               if (x_fds < xc_state) {x_fds = xc_state;}
-              if (x_fds > xmax_state) {x_fds = xmax_state;}
+              if (x_fds >= xmax_state) {x_fds = xmax_state-0.001;}
               if (theta_fds < 0) {theta_fds=0;}
-              if (theta_fds > thetamax_state) {theta_fds = thetamax_state;}
+              if (theta_fds >= thetamax_state) {theta_fds = thetamax_state-0.001;}
 
               //Fitness Interpolation
               int x_fds_low = (int) floor(x_fds);
@@ -601,25 +601,25 @@ List SDP_beq_func(
               //Define fitness
               //The if statement is to deal with the case: theta_state = theta_max_state, meaning the theta_high will be out of bounds
               double W_fds;
-              if ((x_fds == xmax_state) && (theta_fds == thetamax_state)) {
-                NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
-                W_fds = W_theta_fds_low(x_fds_low,t+1);
-              }
-              if ((x_fds < xmax_state) && (theta_fds == thetamax_state)) {
-                NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
-                W_fds = qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1);
-              }
-              if ((x_fds == xmax_state) && (theta_fds < thetamax_state)) {
-                NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
-                NumericMatrix W_theta_fds_high = W_theta(theta_fds_high);
-                W_fds = qtheta_fds*(W_theta_fds_low(x_fds_low,t+1)) + (1 - qtheta_fds)*(W_theta_fds_high(x_fds_low,t+1));
-              }
-              if ((x_fds < xmax_state) && (theta_fds < thetamax_state)) {
+              // if ((x_fds == xmax_state) && (theta_fds == thetamax_state)) {
+              //   NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
+              //   W_fds = W_theta_fds_low(x_fds_low,t+1);
+              // }
+              // if ((x_fds < xmax_state) && (theta_fds == thetamax_state)) {
+              //   NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
+              //   W_fds = qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1);
+              // }
+              // if ((x_fds == xmax_state) && (theta_fds < thetamax_state)) {
+              //   NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
+              //   NumericMatrix W_theta_fds_high = W_theta(theta_fds_high);
+              //   W_fds = qtheta_fds*(W_theta_fds_low(x_fds_low,t+1)) + (1 - qtheta_fds)*(W_theta_fds_high(x_fds_low,t+1));
+              // }
+              // if ((x_fds < xmax_state) && (theta_fds < thetamax_state)) {
                 NumericMatrix W_theta_fds_low = W_theta(theta_fds_low);
                 NumericMatrix W_theta_fds_high = W_theta(theta_fds_high);
                 W_fds = qtheta_fds*(qx_fds*W_theta_fds_low(x_fds_low,t+1) + (1 - qx_fds)*W_theta_fds_low(x_fds_high,t+1)) +
                 (1 - qtheta_fds)*(qx_fds*W_theta_fds_high(x_fds_low,t+1) +  (1 - qx_fds)*W_theta_fds_high(x_fds_high,t+1));
-              }
+              // }
 
 
               //Find maximum of {W(xfc), W(xfsc), W(xf)}
@@ -639,6 +639,8 @@ List SDP_beq_func(
               //fitness_f(3) = W_fsc;
               fitness_f(1) = W_fs; //Find, eat
               //fitness_f(5) = W_fds;
+
+
 
               //Check for similarities
               if (fitness_f(0) == fitness_f(1)) {
@@ -695,7 +697,7 @@ List SDP_beq_func(
       jstar_theta(theta) = jstar_xt;
       //Update the decision matrix
       dec_theta(theta) = dec_t;
-
+      Rcout << "Theta= " << theta << std::endl;
     } //End theta iterations
 
 
