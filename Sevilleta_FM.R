@@ -1,8 +1,8 @@
 library(Rcpp)
 library(plotrix)
 library(RColorBrewer)
-sourceCpp("src/SDP_beq_func.cpp")
-
+#sourceCpp("src/SDP_beq_func.cpp")
+sourceCpp("src/SDP_beq_func_trim.cpp")
 
 #Sevilleta foraging model
 #Setup
@@ -30,12 +30,12 @@ for (j in 1:num_res) {
 gain <- c(2,3,1,3,5)
 
 #Run SDP
-Cout <- SDP_beq_func(
+Cout <- SDP_beq_func_trim(
   Mc <- 5,
   a <- 1,
   b <- -0.25,
-  theta_max <- 50,
-  tmax <- 50,
+  theta_max <- 100,
+  tmax <- 100,
   pk <- pk,
   gain <- gain
 )
@@ -46,13 +46,13 @@ dec <- Cout[[3]]
 
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-theta <- 10
-xx <- jstar[[theta]] +1
+time <- 80
+xx <- jstar[[time]] +1
 pal.m <- as.character(xx); 
 pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
 pal.m[which(pal.m == "4")] = pal[3]; pal.m[which(pal.m == "5")] = pal[4]; pal.m[which(pal.m == "6")] = pal[5]
 lbs <- unique(as.numeric(xx))
 par(mar=c(5,5,2,10))
-color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta-1),cellcolors = pal.m)
-legend(tmax,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[sort(lbs)],xpd=TRUE, bty="n")
+color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Theta", ylab="Energetic Reserves",main=paste("Time = ",time),cellcolors = pal.m)
+legend(theta_max,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[sort(lbs)],xpd=TRUE, bty="n")
 

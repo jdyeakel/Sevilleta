@@ -8,7 +8,7 @@ using namespace Rcpp;
 // For more on using Rcpp click the Help button on the editor toolbar
 
 // [[Rcpp::export]]
-List SDP_beq_func(
+List SDP_beq_func_trim(
   double Mc,
   double a,
   double b,
@@ -73,8 +73,10 @@ List SDP_beq_func(
 
     //Build fitness list, jstar list
     List W_time(tmax);
-    List jstar_time(tmax);
-    W_time(tmax) = Wterm;
+    List jstar_time(tmax-1);
+
+    W_time(tmax-1) = Wterm;
+
     for (int t=0;t<(tmax-1);t++) {
       NumericMatrix W_xt(xmax,thetamax);
       NumericMatrix jstar_xt(xmax,thetamax);
@@ -89,15 +91,17 @@ List SDP_beq_func(
     //Iterate backwards over t
     for (int t=(tmax-1); t --> 0;) {
 
-      //X,Theta matrix for time t
+      //Values for the future time... starting with term time...
+      NumericMatrix W_fut = W_time(t+1);
+
+      //X,Theta matrix for time t... these will initially be empty
       NumericMatrix W_xt = W_time(t);
       NumericMatrix jstar_xt = jstar_time(t);
 
-      //Values for the future time
-      NumericMatrix W_fut = W_time(t+1);
+
 
       //Saving decision rules
-      List dec_t(thetamax);
+      List dec_theta(thetamax);
 
       //Over theta
       for (int theta=0;theta<thetamax;theta++) {
@@ -180,7 +184,7 @@ List SDP_beq_func(
             // theta_dfdc_low = theta_dfdc_low - 1;
             // theta_dfdc_high = theta_dfdc_high - 1;
 
-            // Rcout << "theta_dfdc_low = " << theta_dfdc_low << std::endl;
+
             // Rcout << "theta_dfdc_high = " << theta_dfdc_high << std::endl;
 
             //Define fitness
@@ -261,13 +265,13 @@ List SDP_beq_func(
               temp_v(0) = k_state*gainj; temp_v(1)=xs;
               int minvalue = which_min(temp_v);
               double Y_k = temp_v(minvalue);
-              double Y_remainder = (k_state*gainj) - Y_k;
-              if (Y_remainder < 0) {Y_remainder = 0;}
+              // double Y_remainder = (k_state*gainj) - Y_k;
+              // if (Y_remainder < 0) {Y_remainder = 0;}
 
-              //Define Y_remain
-              NumericVector temp_remain(2); temp_remain(0)=Y_remainder; temp_remain(1)=xs;
-              int minvalue_remain = which_min(temp_remain);
-              double Y_remain = temp_remain(minvalue_remain);
+              // //Define Y_remain
+              // NumericVector temp_remain(2); temp_remain(0)=Y_remainder; temp_remain(1)=xs;
+              // int minvalue_remain = which_min(temp_remain);
+              // double Y_remain = temp_remain(minvalue_remain);
 
               ////////////
               //Decisions
@@ -412,9 +416,9 @@ List SDP_beq_func(
       //Update fitness matrix
       W_time(t) = W_xt;
       //Update the jstar matrix
-      jstar_time(theta) = jstar_xt;
+      jstar_time(t) = jstar_xt;
       //Update the decision matrix
-      dec_time(theta) = dec_t;
+      dec_time(t) = dec_theta;
 
       Rcout << "Time= " << t << std::endl;
 
