@@ -366,7 +366,8 @@ List SDP_beq_func_trim(
 
               //Check for similarities
               if (fitness_f(0) == fitness_f(1)) {
-                Rcout << "The f values are the same!" << x << std::endl;
+                Rcout << "The f values are the same! x = " << x << std::endl;
+                Rcout << "The f values are the same! theta = " << theta << std::endl;
               }
 
 
