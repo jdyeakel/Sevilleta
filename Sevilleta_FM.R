@@ -32,7 +32,7 @@ gain <- c(2,3,1,3,5)
 
 #Run SDP
 Cout <- SDP_beq_func_trim(
-  Mc <- 5,
+  Mc <- 10,
   a <- 1,
   b <- -0.25,
   theta_max <- 100,
@@ -55,7 +55,7 @@ W_xt <- ttt[[1]]; jstar_xt <- ttt[[2]]
 
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-time <- 50
+time <- 10
 xx <- jstar[[time]] +1
 pal.m <- as.character(xx); 
 pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
@@ -69,7 +69,7 @@ legend(theta_max,Mc*10,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal)[s
 ## TTT Plots
 pal <- brewer.pal(5,"Set1")
 resources = c("NA","C3 veg", "C3 seeds", "C4 veg", "C4 seeds", "Insects")
-theta <- 100
+theta <- 1
 xx <- jstar_xt[[theta]] +1
 pal.m <- as.character(xx); 
 pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 

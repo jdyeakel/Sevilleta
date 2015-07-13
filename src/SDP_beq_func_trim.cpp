@@ -31,8 +31,9 @@ List SDP_beq_func_trim(
     //~10 MJ in 2750 kcal.... so 10 MJ per kg.
     double xmax_state = Mc*10; //Body size in kilograms to MegaJoules
     int xmax = (int) floor(xmax_state);
-    double xc_state = (double) floor(0.5*xmax_state);
-    int xc = (int) floor(xc_state);
+    double xc_state = (double) floor(0.5*xmax_state); //The critical value
+    int xc = (int) xc_state - 1; //The index for the critical value
+
     //Stomach/cheek capacity
     double xs = 0.10*xmax_state;
 
@@ -55,7 +56,7 @@ List SDP_beq_func_trim(
     //Build terminal fitness function
     //It will be important to test result sensitivities to this function...
     NumericMatrix Wterm(xmax,thetamax);
-    for (int i=xc;i<xmax;i++) {
+    for (int i=xc+1;i<xmax;i++) {
       for (int j=0;j<thetamax;j++) {
         double x_state = (double) i+1;
         double theta_state = (double) j+1;
@@ -70,6 +71,8 @@ List SDP_beq_func_trim(
         Wterm(i,j) = Wterm(i,j)/Wterm_max;
       }
     }
+
+    Rcout << "Fitness at the critical value: " << Wterm(xc_state,0) << std::endl;
 
     //Build fitness list, jstar list
     List W_time(tmax);
@@ -114,7 +117,7 @@ List SDP_beq_func_trim(
         List dec_x(xmax);
 
         //Itertate over x
-        for (int x=xc;x<xmax;x++) {
+        for (int x=xc+1;x<xmax;x++) {
 
           //Add one so that we range through the minimal x_state (xc + 1)
           //to the maximum x_state (xmax).
@@ -151,8 +154,8 @@ List SDP_beq_func_trim(
 
             ////Don't find food, don't eat cache
             //// DFDC
-            double x_dfdc = x_state - a*pow(Mc,b);
-            double theta_dfdc = theta_state - Y_decay;
+            // double x_dfdc = x_state - a*pow(Mc,b);
+            // double theta_dfdc = theta_state - Y_decay;
             ////
 
             ////Don't find food, eat cache
@@ -161,36 +164,36 @@ List SDP_beq_func_trim(
             double theta_dfc = theta_state - Y_theta - Y_decay;
             ////
             //
-            //Boundary conditions
-            if (x_dfdc < xc_state) {x_dfdc = xc_state;}
-            if (x_dfdc >= xmax_state) {x_dfdc = xmax_state-0.001;}
-            if (theta_dfdc < 0) {theta_dfdc=0;}
-            if (theta_dfdc >= thetamax_state) {theta_dfdc = thetamax_state-0.001;}
-
-            //Fitness Interpolation
-            int x_dfdc_low = (int) floor(x_dfdc);
-            int x_dfdc_high = x_dfdc + 1;
-            double x_dfdc_h = (double) x_dfdc_high;
-            int theta_dfdc_low = (int) floor(theta_dfdc);
-            int theta_dfdc_high = (int) theta_dfdc_low + 1;
-            double theta_dfdc_h = (double) theta_dfdc_high;
-
-            //Interpolation weights
-            double qx_dfdc = x_dfdc_h - x_dfdc;
-            double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
-            //Adjust to represent indices rather than state
-            x_dfdc_low = x_dfdc_low - 1;
-            x_dfdc_high = x_dfdc_high - 1;
-            // theta_dfdc_low = theta_dfdc_low - 1;
-            // theta_dfdc_high = theta_dfdc_high - 1;
-
-
-            // Rcout << "theta_dfdc_high = " << theta_dfdc_high << std::endl;
-
-            //Define fitness
-            double W_dfdc;
-            W_dfdc = qtheta_dfdc*(qx_dfdc*W_fut(x_dfdc_low,theta_dfdc_low) + (1 - qx_dfdc)*W_fut(x_dfdc_high,theta_dfdc_low)) +
-            (1 - qtheta_dfdc)*(qx_dfdc*W_fut(x_dfdc_low,theta_dfdc_high) + (1 - qx_dfdc)*W_fut(x_dfdc_high,theta_dfdc_high));
+            // //Boundary conditions
+            // if (x_dfdc < xc_state) {x_dfdc = xc_state;}
+            // if (x_dfdc >= xmax_state) {x_dfdc = xmax_state-0.001;}
+            // if (theta_dfdc < 0) {theta_dfdc=0;}
+            // if (theta_dfdc >= thetamax_state) {theta_dfdc = thetamax_state-0.001;}
+            //
+            // //Fitness Interpolation
+            // int x_dfdc_low = (int) floor(x_dfdc);
+            // int x_dfdc_high = x_dfdc + 1;
+            // double x_dfdc_h = (double) x_dfdc_high;
+            // int theta_dfdc_low = (int) floor(theta_dfdc);
+            // int theta_dfdc_high = (int) theta_dfdc_low + 1;
+            // double theta_dfdc_h = (double) theta_dfdc_high;
+            //
+            // //Interpolation weights
+            // double qx_dfdc = x_dfdc_h - x_dfdc;
+            // double qtheta_dfdc = theta_dfdc_h - theta_dfdc;
+            // //Adjust to represent indices rather than state
+            // x_dfdc_low = x_dfdc_low - 1;
+            // x_dfdc_high = x_dfdc_high - 1;
+            // // theta_dfdc_low = theta_dfdc_low - 1;
+            // // theta_dfdc_high = theta_dfdc_high - 1;
+            //
+            //
+            // // Rcout << "theta_dfdc_high = " << theta_dfdc_high << std::endl;
+            //
+            // //Define fitness
+            // double W_dfdc;
+            // W_dfdc = qtheta_dfdc*(qx_dfdc*W_fut(x_dfdc_low,theta_dfdc_low) + (1 - qx_dfdc)*W_fut(x_dfdc_high,theta_dfdc_low)) +
+            // (1 - qtheta_dfdc)*(qx_dfdc*W_fut(x_dfdc_low,theta_dfdc_high) + (1 - qx_dfdc)*W_fut(x_dfdc_high,theta_dfdc_high));
 
             // NumericMatrix W_theta_dfdc_low = W_theta(theta_dfdc_low);
             // NumericMatrix W_theta_dfdc_high = W_theta(theta_dfdc_high);
@@ -363,11 +366,11 @@ List SDP_beq_func_trim(
               fitness_f(1) = W_fs; //Find, eat
 
 
-
+              //When costs are greater than 2, you get similarity errors.
               //Check for similarities
               if (fitness_f(0) == fitness_f(1)) {
                 Rcout << "The f values are the same! x = " << x << std::endl;
-                Rcout << "The f values are the same! theta = " << theta << std::endl;
+                Rcout << "The f values are the same! x_fsdc = " << Y_k << std::endl;
               }
 
 
@@ -375,7 +378,7 @@ List SDP_beq_func_trim(
               max_dec_f(k) = which_max(fitness_f);
 
               //Saving this for later
-              dec(k,j) = max_dec_f(k) + 3;
+              dec(k,j) = max_dec_f(k) + 2;
 
               //Fitness value weighted by the probability of k
               W_max_f(k) = pkj(k)*fitness_f(max_dec_f(k));
@@ -411,6 +414,8 @@ List SDP_beq_func_trim(
         //Only updating decision matrix because dec_x is a List
         //within which is embedded dec(k,j)
         dec_theta(theta) = dec_x;
+
+        Rcout << "Theta_state = " << theta_state << std::endl;
 
       } //End theta iterations
 
