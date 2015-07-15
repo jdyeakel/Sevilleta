@@ -29,7 +29,7 @@ List SDP_beq_func_trim(
 
     //2750 kcal/kg
     //~10 MJ in 2750 kcal.... so 10 MJ per kg.
-    double xmax_state = Mc*10; //Body size in kilograms to MegaJoules
+    double xmax_state = Mc; //Body size in grams = (10 kJ/gram)
     int xmax = (int) floor(xmax_state);
     double xc_state = (double) floor(0.5*xmax_state); //The critical value
     int xc = (int) xc_state - 1; //The index for the critical value
@@ -141,9 +141,10 @@ List SDP_beq_func_trim(
 
 
             //Define Y_theta
-            NumericVector temp_v(2); temp_v(0)=theta_state; temp_v(1)=xs;
-            int minvalue = which_min(temp_v);
-            double Y_theta = temp_v(minvalue); //What you can gain from cache
+            NumericVector tempYtheta_v(2);
+            tempYtheta_v(0)=theta_state; tempYtheta_v(1)=xs;
+            int minvalue = which_min(tempYtheta_v);
+            double Y_theta = tempYtheta_v(minvalue); //What you can gain from cache
 
             //The case of k=0
 
@@ -265,9 +266,10 @@ List SDP_beq_func_trim(
 
 
               //Define Y_k
-              temp_v(0) = k_state*gainj; temp_v(1)=xs;
-              int minvalue = which_min(temp_v);
-              double Y_k = temp_v(minvalue);
+              NumericVector tempYj_v(2);
+              tempYj_v(0) = k_state*gainj; tempYj_v(1)=xs;
+              int minvalue = which_min(tempYj_v);
+              double Y_k = tempYj_v(minvalue);
               // double Y_remainder = (k_state*gainj) - Y_k;
               // if (Y_remainder < 0) {Y_remainder = 0;}
 
@@ -286,7 +288,7 @@ List SDP_beq_func_trim(
               double theta_fsdc = theta_state + Y_k - Y_decay;
               ////
 
-              ////Find food, accept, store remainder
+              ////Find food, accept
               //// FS
               double x_fs = x_state - a*pow(Mc,b) + Y_k;
               double theta_fs = theta_state - Y_decay; //+ Y_remain
@@ -369,13 +371,14 @@ List SDP_beq_func_trim(
               //When costs are greater than 2, you get similarity errors.
               //Check for similarities
               if (fitness_f(0) == fitness_f(1)) {
-                Rcout << "The f values are the same! x = " << x << std::endl;
-                Rcout << "The f values are the same! x_fsdc = " << Y_k << std::endl;
+                // Rcout << "The f values are the same! x = " << x << std::endl;
+                // Rcout << "The f values are the same! x_fsdc = " << Y_k << std::endl;
+                //Assume the organism eats the resource :: fitness_f(1)
+                max_dec_f(k) = 1;
+              } else {
+                //Find the maximum
+                max_dec_f(k) = which_max(fitness_f);
               }
-
-
-              //Find the maximum
-              max_dec_f(k) = which_max(fitness_f);
 
               //Saving this for later
               dec(k,j) = max_dec_f(k) + 2;
@@ -415,7 +418,7 @@ List SDP_beq_func_trim(
         //within which is embedded dec(k,j)
         dec_theta(theta) = dec_x;
 
-        Rcout << "Theta_state = " << theta_state << std::endl;
+        //Rcout << "Theta_state = " << theta_state << std::endl;
 
       } //End theta iterations
 
