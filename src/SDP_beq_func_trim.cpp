@@ -203,9 +203,9 @@ List SDP_beq_func_trim(
 
             //Boundary conditions
             if (x_dfc < xc_state) {x_dfc = xc_state;}
-            if (x_dfc >= xmax_state) {x_dfc = xmax_state-0.001;}
+            if (x_dfc >= xmax_state) {x_dfc = xmax_state-0.0001;}
             if (theta_dfc < 0) {theta_dfc=0;}
-            if (theta_dfc >= thetamax_state) {theta_dfc = thetamax_state-0.001;}
+            if (theta_dfc >= thetamax_state) {theta_dfc = thetamax_state-0.0001;}
 
             //Fitness Interpolation
             int x_dfc_low = (int) floor(x_dfc);
@@ -297,9 +297,9 @@ List SDP_beq_func_trim(
 
               //Boundary conditions
               if (x_fsdc < xc_state) {x_fsdc = xc_state;}
-              if (x_fsdc >= xmax_state) {x_fsdc = xmax_state-0.001;}
+              if (x_fsdc >= xmax_state) {x_fsdc = xmax_state-0.0001;}
               if (theta_fsdc < 0) {theta_fsdc=0;}
-              if (theta_fsdc >= thetamax_state) {theta_fsdc = thetamax_state-0.001;}
+              if (theta_fsdc >= thetamax_state) {theta_fsdc = thetamax_state-0.0001;}
 
               //Fitness Interpolation
               int x_fsdc_low = (int) floor(x_fsdc);
@@ -330,9 +330,9 @@ List SDP_beq_func_trim(
 
               //Boundary conditions
               if (x_fs < xc_state) {x_fs = xc_state;}
-              if (x_fs >= xmax_state) {x_fs = xmax_state-0.001;}
+              if (x_fs >= xmax_state) {x_fs = xmax_state-0.0001;}
               if (theta_fs < 0) {theta_fs=0;}
-              if (theta_fs >= thetamax_state) {theta_fs = thetamax_state-0.001;}
+              if (theta_fs >= thetamax_state) {theta_fs = thetamax_state-0.0001;}
 
               //Fitness Interpolation
               int x_fs_low = (int) floor(x_fs);
