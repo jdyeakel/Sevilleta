@@ -15,7 +15,8 @@ List SDP_beq_func_trim(
   int thetamax,
   int tmax,
   NumericMatrix pk,
-  NumericVector gain) {
+  NumericVector gain,
+  NumericVector epsilon) {
 
 
     //IntegerVector seed
@@ -43,7 +44,7 @@ List SDP_beq_func_trim(
     //So in theta[50], your chache is just 49 units.
     double thetamax_state = thetamax - 1;
 
-    double Y_decay = 2;
+    double Y_decay = 0;
 
     //Food qualities
     int num_res = gain.size();
@@ -133,6 +134,7 @@ List SDP_beq_func_trim(
           for(int j=0;j<num_res;j++) {
 
             double gainj = gain(j);
+            double ep = epsilon(j);
 
             NumericVector pkj(kmax);
             for (int k=0;k<kmax;k++) {
@@ -267,7 +269,7 @@ List SDP_beq_func_trim(
 
               //Define Y_k
               NumericVector tempYj_v(2);
-              tempYj_v(0) = k_state*gainj; tempYj_v(1)=xs;
+              tempYj_v(0) = ep*k_state*gainj; tempYj_v(1)=xs;
               int minvalue = which_min(tempYj_v);
               double Y_k = tempYj_v(minvalue);
               // double Y_remainder = (k_state*gainj) - Y_k;
@@ -282,13 +284,13 @@ List SDP_beq_func_trim(
               //Decisions
               ///////////
 
-              ////Find food, store, don't each cache
+              ////Find food, store
               //// FSDC
               double x_fsdc = x_state - a*pow(Mc,b);
               double theta_fsdc = theta_state + Y_k - Y_decay;
               ////
 
-              ////Find food, accept
+              ////Find food, eat
               //// FS
               double x_fs = x_state - a*pow(Mc,b) + Y_k;
               double theta_fs = theta_state - Y_decay; //+ Y_remain
