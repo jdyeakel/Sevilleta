@@ -23,7 +23,7 @@ num_res <- 5
 
 
 #Probability of finding k resources of food type j
-m <- c(6.5,2.5,0.4,0.05,2.2)*2 #Good Winter
+m <- c(5.5,2.5,0.4,0.05,2.2)*2 #Good Winter
 #m <- c(6.5,0.8,0.4,0.05,2.2)*2 #ORIGINAL Good Winter
 m <- c(3.0,2.2,5.3,2.4,2.2)*2 #Good Monsoon
 #m <- c(1.5,0.2,5.3,0.6,2.2) #ORIGINAL Good Monsoon
@@ -54,13 +54,14 @@ for (i in 1:num_res) {
 #Resource gain
 #each unit is 10 kJ/gram
 gain <- c(1.5,2.1,1.5,2.1,2.5)
-epsilon <- c(0.35,1.0,0.25,0.9,1.0)
+#Digestive efficiency
+epsilon <- c(0.33,0.75,0.25,0.7,0.77)
 #Run SDP
 Cout <- SDP_beq_func_trim(
-  Mc <- 40,
+  Mc <- 316,
   a <- 0.2,
   b <- 0.75,
-  theta_max <- 10*Mc,
+  theta_max <- 500,
   tmax <- 100,
   pk <- pk,
   gain <- gain,
@@ -70,6 +71,16 @@ Cout <- SDP_beq_func_trim(
 W <- Cout[[1]]
 jstar <- Cout[[2]]
 dec <- Cout[[3]]
+#Cut out deadspace for jstar
+jstar2 <- list()
+W2 <- list()
+for (t in 1:(tmax-1)) {
+  jstar2[[t]] <- jstar[[t]][(floor(0.8*Mc)-10):Mc,]
+  W2[[t]] <- W[[t]][(floor(0.8*Mc)+1):Mc,]
+}
+jstar <- jstar2
+W <- W2
+
 ttt <- timetotheta(W,jstar)
 W_xt <- ttt[[1]]; jstar_xt <- ttt[[2]]
 
@@ -82,7 +93,7 @@ xxjstar <- jstar
 cache_threshold <- 0.8
 for (t in 1:(tmax-1)) {
   for (theta in 1:theta_max) {
-    for (x in (floor(0.5*Mc)+1):Mc) {
+    for (x in (12:(Mc-floor(0.8*Mc)+11))) {
       j = jstar[[t]][x,theta]
       #dec_vector = dec[[t]][[theta]][[x]][,j]
       prob_none = pk[1,j]
@@ -108,10 +119,11 @@ for (t in timeseq) {
   pal.m[which(pal.m == "7")] = "gray"
   lbs <- unique(as.numeric(xx))
   #par(mar=c(5,5,2,10))
-  color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Cache reserves (1 unit = 10 kJ)", ylab="Energetic reserves (1 unit = 10 kJ)",main=paste("Time = ",time),cellcolors = pal.m)
-#   if (tic == 1) {
-#     legend(0,Mc,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal,"gray")[sort(lbs)],xpd=TRUE, bty="n")
-#   }
+  color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, 
+                  xlab="Cache reserves (1 unit = 10 kJ)", ylab="Energetic reserves (1 unit = 10 kJ)",main=paste("Time = ",time),cellcolors = pal.m)
+  if (tic == 3) {
+    legend(-60,78,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal,"gray")[sort(lbs)],xpd=TRUE, bty="n")
+  }
 }
 
 
@@ -124,7 +136,7 @@ pal.m <- as.character(xx);
 pal.m[which(pal.m == "1")] = "white"; pal.m[which(pal.m == "2")] = pal[1]; pal.m[which(pal.m == "3")] = pal[2]; 
 pal.m[which(pal.m == "4")] = pal[3]; pal.m[which(pal.m == "5")] = pal[4]; pal.m[which(pal.m == "6")] = pal[5]
 lbs <- unique(as.numeric(xx))
-par(mar=c(5,5,2,10))
+par(mar=c(5,5,2,60))
 color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, xlab="Time", ylab="Energetic Reserves",main=paste("Theta = ",theta-1),cellcolors = pal.m)
 legend(tmax,Mc,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal,"gray")[sort(lbs)],xpd=TRUE, bty="n")
 

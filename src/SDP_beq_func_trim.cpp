@@ -32,12 +32,12 @@ List SDP_beq_func_trim(
     //~10 MJ in 2750 kcal.... so 10 MJ per kg.
     double xmax_state = Mc; //Body size in grams = (10 kJ/gram)
     int xmax = (int) floor(xmax_state);
-    double xc_state = (double) floor(0.5*xmax_state); //The critical value
+    double xc_state = (double) floor(0.8*xmax_state); //The critical value
     int xc = (int) xc_state - 1; //The index for the critical value
 
     //Stomach/cheek capacity
-    double xs = 0.10*xmax_state;
-
+    //double xs = 0.01*xmax_state;
+    double xs = 15.4;
 
     //If thetamax is 50, thetamax_state is 49...
     //The vector is 50 units long... but ranges from theta=0 to theta=49.
