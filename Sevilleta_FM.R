@@ -23,13 +23,13 @@ num_res <- 5
 
 
 #Probability of finding k resources of food type j
-m <- c(5.5,2.5,0.4,0.05,2.2)*2 #Good Winter
+m <- c(1.8,2,0.4,0.05,1.8)*2; MR <- 120 #Good Winter
 #m <- c(6.5,0.8,0.4,0.05,2.2)*2 #ORIGINAL Good Winter
-m <- c(3.0,2.2,5.3,2.4,2.2)*2 #Good Monsoon
+m <- c(3.0,2.2,5.3,2.4,1.8)*2; MR <- 80 #Good Monsoon
 #m <- c(1.5,0.2,5.3,0.6,2.2) #ORIGINAL Good Monsoon
 
 #nu <- c(7,4,10,5,2)
-nu <- c(10,5,10,5,1) #(10,10,10,10,1) = Insects are very patchy compared to everything else
+nu <- c(5,5,10,5,1) #(10,10,10,10,1) = Insects are very patchy compared to everything else
 max_enc <- 20
 pk <- matrix(0,(max_enc+1),num_res)
 for (j in 1:num_res) {
@@ -53,14 +53,13 @@ for (i in 1:num_res) {
 
 #Resource gain
 #each unit is 10 kJ/gram
-gain <- c(1.5,2.1,1.5,2.1,2.5)
+gain <- c(1.5,2.1,1.5,2.1,2.5)*10 # if *10 now in 1 kilojoule / unit
 #Digestive efficiency
 epsilon <- c(0.33,0.75,0.25,0.7,0.77)
 #Run SDP
 Cout <- SDP_beq_func_trim(
-  Mc <- 316,
-  a <- 0.2,
-  b <- 0.75,
+  Mc <- 343,
+  MR <- MR,
   theta_max <- 500,
   tmax <- 100,
   pk <- pk,
@@ -75,14 +74,14 @@ dec <- Cout[[3]]
 jstar2 <- list()
 W2 <- list()
 for (t in 1:(tmax-1)) {
-  jstar2[[t]] <- jstar[[t]][(floor(0.8*Mc)-10):Mc,]
-  W2[[t]] <- W[[t]][(floor(0.8*Mc)+1):Mc,]
+  jstar2[[t]] <- jstar[[t]][(floor(0.4*Mc)-10):Mc,]
+  W2[[t]] <- W[[t]][(floor(0.4*Mc)+1):Mc,]
 }
 jstar <- jstar2
 W <- W2
 
-ttt <- timetotheta(W,jstar)
-W_xt <- ttt[[1]]; jstar_xt <- ttt[[2]]
+#ttt <- timetotheta(W,jstar)
+#W_xt <- ttt[[1]]; jstar_xt <- ttt[[2]]
 
 
 ###########
@@ -93,7 +92,7 @@ xxjstar <- jstar
 cache_threshold <- 0.8
 for (t in 1:(tmax-1)) {
   for (theta in 1:theta_max) {
-    for (x in (12:(Mc-floor(0.8*Mc)+11))) {
+    for (x in (12:(Mc-floor(0.4*Mc)+11))) {
       j = jstar[[t]][x,theta]
       #dec_vector = dec[[t]][[theta]][[x]][,j]
       prob_none = pk[1,j]
@@ -105,7 +104,7 @@ for (t in 1:(tmax-1)) {
 }
 #pal <- brewer.pal(5,"Set1")
 par(mfrow=c(1,3))
-timeseq <- c(1,75,95)
+timeseq <- c(1,75,98)
 tic <- 0
 for (t in timeseq) {
   tic <- tic + 1
@@ -120,7 +119,8 @@ for (t in timeseq) {
   lbs <- unique(as.numeric(xx))
   #par(mar=c(5,5,2,10))
   color2D.matplot(xx,extremes=lbs, border=NA, axes=TRUE, 
-                  xlab="Cache reserves (1 unit = 10 kJ)", ylab="Energetic reserves (1 unit = 10 kJ)",main=paste("Time = ",time),cellcolors = pal.m)
+                  xlab="Cache reserves (1 unit = 10 kJ)", ylab="Energetic reserves (1 unit = 10 kJ)",
+                  main=bquote(D(x,theta,t= .(t) )),cellcolors = pal.m)
   if (tic == 3) {
     legend(-60,78,legend=resources[sort(lbs)],pch=22,pt.bg=c("white",pal,"gray")[sort(lbs)],xpd=TRUE, bty="n")
   }

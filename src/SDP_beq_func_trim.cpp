@@ -10,8 +10,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 List SDP_beq_func_trim(
   double Mc,
-  double a,
-  double b,
+  double MR,
   int thetamax,
   int tmax,
   NumericMatrix pk,
@@ -32,12 +31,12 @@ List SDP_beq_func_trim(
     //~10 MJ in 2750 kcal.... so 10 MJ per kg.
     double xmax_state = Mc; //Body size in grams = (10 kJ/gram)
     int xmax = (int) floor(xmax_state);
-    double xc_state = (double) floor(0.8*xmax_state); //The critical value
+    double xc_state = (double) floor(0.4*xmax_state); //The critical value
     int xc = (int) xc_state - 1; //The index for the critical value
 
     //Stomach/cheek capacity
     //double xs = 0.01*xmax_state;
-    double xs = 15.4;
+    double xs = 100;  //in kiloJoules
 
     //If thetamax is 50, thetamax_state is 49...
     //The vector is 50 units long... but ranges from theta=0 to theta=49.
@@ -163,7 +162,7 @@ List SDP_beq_func_trim(
 
             ////Don't find food, eat cache
             //// DFC
-            double x_dfc = x_state - a*pow(Mc,b) + Y_theta;
+            double x_dfc = x_state - MR + Y_theta;
             double theta_dfc = theta_state - Y_theta - Y_decay;
             ////
             //
@@ -286,13 +285,13 @@ List SDP_beq_func_trim(
 
               ////Find food, store
               //// FSDC
-              double x_fsdc = x_state - a*pow(Mc,b);
+              double x_fsdc = x_state - MR;
               double theta_fsdc = theta_state + Y_k - Y_decay;
               ////
 
               ////Find food, eat
               //// FS
-              double x_fs = x_state - a*pow(Mc,b) + Y_k;
+              double x_fs = x_state - MR + Y_k;
               double theta_fs = theta_state - Y_decay; //+ Y_remain
               ////
 
